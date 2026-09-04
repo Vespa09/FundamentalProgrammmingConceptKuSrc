@@ -1,2 +1,8 @@
-# FundamentalProgrammmingConceptKuSrc
-โปรเจกต์ไพธอนวิชา fundamental programming concept มก.ศรช.
+## FundamentalProgrammmingConceptKuSrc
+โปรเจกต์นี้เป็นส่วนหนึ่งของวิชา fumdamental prograamming concept มหาวิทยาลัยเกษตรศาสตร์ วิทยาเขตศรีราชา 
+
+## จัดทำโดย
+1. นาย ธนากร ขนทอง 6930200760
+2. นาย แทนโชค สังข์วัย 6930200689
+3. นางสาว กฤษยารัตน์ กลิ่นพิพัฒน์ 6930200018
+
