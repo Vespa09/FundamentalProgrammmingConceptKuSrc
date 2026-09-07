@@ -1,5 +1,5 @@
 ## FundamentalProgrammmingConceptKuSrc
-โปรเจกต์นี้เป็นส่วนหนึ่งของวิชา fumdamental prograamming concept มหาวิทยาลัยเกษตรศาสตร์ วิทยาเขตศรีราชา 
+โปรเจกต์นี้เป็นส่วนหนึ่งของวิชา fumdamental programming concept มหาวิทยาลัยเกษตรศาสตร์ วิทยาเขตศรีราชา 
 
 ## จัดทำโดย
 1. นาย ธนากร ขนทอง 6930200760
