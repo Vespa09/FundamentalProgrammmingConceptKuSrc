@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="&#3650;&#3611;&#3619;&#3648;&#3592;&#3585;&#3605;&#3660;fund prog"/>
+        <attribute name="authors" value="vespa"/>
+        <attribute name="about" value=""/>
+        <attribute name="saved" value="2026-09-08 12:54:17 PM"/>
+        <attribute name="created" value="dmVzcGE7VkVTUEE7MjAyNi0wOS0wODsxMjozMDoyNSBQTTsyMjEw"/>
+        <attribute name="edited" value="dmVzcGE7VkVTUEE7MjAyNi0wOS0wODsxMjo1NDoxNyBQTTsxOzIzMjU="/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="username, usernamedata, table, confirm" type="String" array="False" size=""/>
+            <declare name="password, passworddata, datetime, pay" type="Integer" array="False" size=""/>
+            <assign variable="usernamedata" expression="&quot;vespa&quot;"/>
+            <assign variable="passworddata" expression="123"/>
+            <do expression="(username != usernamedata) and (password != passworddata)">
+                <output expression="&quot;Enter Username :&quot;" newline="True"/>
+                <input variable="username"/>
+                <output expression="&quot;Enter Password&quot;" newline="True"/>
+                <input variable="password"/>
+            </do>
+            <output expression="&quot;Enter Datetime&quot;" newline="True"/>
+            <input variable="datetime"/>
+            <output expression="&quot;&#3648;&#3621;&#3639;&#3629;&#3585;&#3605;&#3635;&#3649;&#3627;&#3609;&#3656;&#3591;&#3650;&#3605;&#3658;&#3632;&quot;" newline="True"/>
+            <input variable="table"/>
+            <output expression="&quot;&#3618;&#3639;&#3609;&#3618;&#3633;&#3609;&#3585;&#3634;&#3619;&#3592;&#3629;&#3591; [Y/N]&quot;" newline="True"/>
+            <input variable="confirm"/>
+            <if expression="confirm == &quot;y&quot; || confirm == &quot;Y&quot;">
+                <then>
+                    <output expression="&quot;&#3648;&#3621;&#3639;&#3629;&#3585;&#3623;&#3636;&#3608;&#3637;&#3594;&#3635;&#3619;&#3632;&#3648;&#3591;&#3636;&#3609;&quot;" newline="True"/>
+                    <output expression="&quot;1.&#3648;&#3591;&#3636;&#3609;&#3626;&#3604; 2.&#3650;&#3629;&#3609;&#3612;&#3656;&#3634;&#3609;&#3608;&#3609;&#3634;&#3588;&#3634;&#3619; 3.&#3610;&#3633;&#3605;&#3619;&#3648;&#3588;&#3619;&#3604;&#3636;&#3605; &quot;" newline="True"/>
+                    <input variable="pay"/>
+                    <output expression="&quot;&#3594;&#3635;&#3619;&#3632;&#3648;&#3591;&#3636;&#3609;&#3626;&#3635;&#3648;&#3619;&#3655;&#3592;&quot;" newline="True"/>
+                </then>
+                <else/>
+            </if>
+        </body>
+    </function>
+</flowgorithm>
