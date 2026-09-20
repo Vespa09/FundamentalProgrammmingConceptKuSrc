@@ -1,4 +1,5 @@
-def text() -> str :
-    return "Hello world"
+import data
 
-print(text())
+def logic_function():
+    '''ฟังก์ชันล็อกอิน'''
+    data.login()
