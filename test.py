@@ -9,6 +9,7 @@ def logic_function():
     '''ฟังก์ชันล็อกอิน'''
     while True:
         print("username: ")
+        global username
         username = input()
         print("password: ")
         password = input()
@@ -53,7 +54,7 @@ def get_table_data():
     
     return data.get_table_available()
 
-def book_table(table_number: str) -> bool:
+def book_table(table_number: str, customer: str) -> bool:
     """
     ฟังก์ชันสำหรับจองโต๊ะ
     Return: bool (True หากจองสำเร็จ, False หากล้มเหลว)
@@ -70,7 +71,7 @@ def book_table(table_number: str) -> bool:
         return False  # โต๊ะไม่ว่าง
     
     # อัปเดตสถานะโต๊ะเป็น "จองแล้ว"
-    data.update_table_status(table_number, "จองแล้ว")
+    data.update_table_status(table_number, "จองแล้ว", customer)
     
     return True  # จองสำเร็จ
 
@@ -86,17 +87,18 @@ def menu_drink():
     """
     return data.menu_drink()
 
-def order_food(item_id: int, quantity: int) -> bool:
+def order_food(item_id: int, quantity: int, table:str) -> bool:
     """
     ฟังก์ชันสำหรับสั่งอาหาร
     Return: bool (True หากสั่งอาหารสำเร็จ, False หากล้มเหลว)
     """
     item = data.get_menu_item(item_id)
+    print(item)
     if item is None:
         result =  False  # เมนูไม่ถูกต้อง
     else:
         total_price = item["price"] * quantity
-        order_result = data.add_order(item, quantity, total_price)
+        order_result = data.add_order(item["name"], quantity, total_price, table_number=table)
     drink_item = data.get_drink_item(item_id)
 
     return order_result  # คืนค่า True หากสั่งอาหารสำเร็จ, False หากล้มเหลว
@@ -112,9 +114,25 @@ def order_drink(item_id: int, quantity: int, table_no: str) -> bool:
         return False  # เมนูไม่ถูกต้อง
     
     total_price = item["price"] * quantity
-    order_result = data.add_order(item, quantity, total_price, table_number = table_no)
+    order_result = data.add_order(item["name"], quantity, total_price, table_number = table_no)
     
     return order_result  # คืนค่า True หากสั่งเครื่องดื่มสำเร็จ, False หากล้มเหลว
+
+def check_bill(table_number: str) -> float:
+    """
+    ฟังก์ชันสำหรับตรวจสอบบิลของโต๊ะ
+    Return: float (ยอดรวมทั้งหมดของโต๊ะ)
+    """
+    return data.check_bill(table_number)
+
+def calculate_payment(total_amount: float) -> bool:
+    """
+    ฟังก์ชันสำหรับคำนวณการชำระเงิน
+    Return: bool (True หากชำระเงินสำเร็จ, False หากล้มเหลว)
+    """
+    print("Enter your amount :")
+    amount = float(input())
+    return total_amount - amount
 
 
 def main():
@@ -156,7 +174,7 @@ def main():
                                     break
                                 elif choose_choice == "1":
                                     table_number = input("Enter the table number you want to book: ")
-                                    book_result = book_table(table_number)
+                                    book_result = book_table(table_number, username)
                                     if book_result:
                                         print("Table booked successfully!")
                                         print("\nYou can now proceed to order .")
@@ -167,9 +185,10 @@ def main():
                                             menu_items = menu_food() + menu_drink()
                                             for item in menu_items:
                                                 print(f"ID: {item[0]}, Name: {item[1]}, Description: {item[3]}, Price: {item[2]}")
-                                            print("\nPlease select an option: \n 1. Order food \n 2. Order drink \n 3. Back")
+                                            
+                                            print("\nPlease select an option: \n 1. Order food \n 2. Order drink \n 3.check bill\n 4. Back")
                                             order_choice = input()
-                                            if order_choice == "3":
+                                            if order_choice == "4":
                                                 break
                                             elif order_choice == "1":
                                                 item_id = input("Enter the food item ID you want to order: ")
@@ -187,6 +206,19 @@ def main():
                                                     print("Drink ordered successfully!")
                                                 else:
                                                     print("Failed to order drink.")
+                                            elif order_choice == "3":
+                                                check_bill(table_number)
+                                                print("Choose your payment method: \n 1. Cash \n 2. Credit card \n 3.cancel")
+                                                choose_payment = input()
+                                                if choose_payment == "1":
+                                                    print("Payment successful. Thank you for dining with us!")
+                                                elif choose_payment == "2":
+                                                    print("Payment successful. Thank you for dining with us!")
+                                                elif choose_payment == "3":
+                                                    print("Payment canceled.")
+
+                                                else:
+                                                    print("Invalid choice. Please try again.")
                                             # Add your ordering logic here
                                             order_choice = input("Do you want to order again? (y/n): ")
                                             if order_choice.lower() != "n":

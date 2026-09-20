@@ -124,8 +124,8 @@ def get_menu_item(item_id: int) -> dict | None:
         menu_item = {
             "id": item[0],
             "name": item[1],
-            "description": item[2],
-            "price": item[3]
+            "description": item[3],
+            "price": item[2]
         }
         return menu_item
     else:
@@ -148,8 +148,8 @@ def get_drink_item(item_id: int) -> dict | None:
         drink_item = {
             "id": item[0],
             "name": item[1],
-            "description": item[2],
-            "price": item[3]
+            "description": item[3],
+            "price": item[2]
         }
         return drink_item
     else:
@@ -164,7 +164,7 @@ def add_order(totalOrder: str,quantity: int,totalPrice: float,status: str = "ส
     cursor = conn.cursor()
     
     # เพิ่มคำสั่งซื้อในตาราง orders
-    cursor.execute("INSERT INTO orders (totalorder, quantity, totalprice, status, table_no) VALUES (?, ?, ?, ?, ?)", (str(totalOrder), quantity, totalPrice, status, table_number))
+    cursor.execute("INSERT INTO orders (menu, quantity, totalprice, status, table_no) VALUES (?, ?, ?, ?, ?)", (str(totalOrder), quantity, totalPrice, status, table_number))
     conn.commit()
     conn.close()
     
@@ -278,7 +278,7 @@ def get_table(table_number: str) -> dict | None:
     else:
         return None
 
-def update_table_status(table_number: str, new_status: str) -> bool:    
+def update_table_status(table_number: str, new_status: str,customer: str) -> bool:    
     """
     ฟังก์ชันสำหรับอัปเดตสถานะโต๊ะ
     Return: bool (True หากอัปเดตสำเร็จ, False หากล้มเหลว)
@@ -286,7 +286,7 @@ def update_table_status(table_number: str, new_status: str) -> bool:
     conn = connect_db()
     cursor = conn.cursor()
     
-    cursor.execute("UPDATE dining_tables SET status=? WHERE table_no=?", (new_status, table_number))
+    cursor.execute("UPDATE dining_tables SET status=? , customer=? WHERE table_no=?", (new_status, customer, table_number))
     conn.commit()
     conn.close()
     
@@ -305,6 +305,21 @@ def get_table_available() -> list:
     conn.close()
     
     return available_tables
+
+
+def check_bill(table_number: str) -> float:
+    """
+    ฟังก์ชันสำหรับตรวจสอบบิลของโต๊ะ
+    Return: float (ยอดรวมทั้งหมดของโต๊ะ)
+    """
+    total_bill = 0.0
+    orders = get_order(table_number)
+    
+    if orders is not None:
+        for order in orders:
+            total_bill += order[3]
+    
+    return total_bill
 
 if __name__ == "__main__":
     print(get_table_available())
