@@ -322,5 +322,12 @@ def check_bill(table_number: str) -> float:
     return total_bill
 
 if __name__ == "__main__":
-    print(get_table_available())
+    '''update_table_status("A1",'ว่าง', 'NULL')
+    update_table_status("A2",'ว่าง', 'NULL')
+    update_table_status("A3",'ว่าง', 'NULL')
+    update_table_status("A4",'ว่าง', 'NULL')
+    update_table_status("B1",'ว่าง', 'NULL')
+    update_table_status("B3",'ว่าง', 'NULL')
+    update_table_status("B2",'ว่าง','NULL')
+    update_table_status("B4",'ว่าง','NULL')'''
 
