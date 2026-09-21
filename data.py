@@ -59,20 +59,19 @@ def get_user_info(username: str) -> dict | None:
     conn = connect_db()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT * FROM users WHERE username=?", (username,))
+    cursor.execute("SELECT * FROM User WHERE username=?", (username,))
     user = cursor.fetchone()
     
     conn.close()
     
     if user is not None:
         user_info = {
-            "id": user[0],
-            "username": user[1],
-            "firstname": user[3],
-            "lastname": user[4],
-            "phone": user[5],
-            "email": user[6],
-            "role": user[7]
+            "username": user[0],
+            "firstname": user[2],
+            "lastname": user[3],
+            "phone": user[4],
+            "email": user[5],
+            "role": user[6]
         }
         return user_info
     else:

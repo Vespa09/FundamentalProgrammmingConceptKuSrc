@@ -134,6 +134,11 @@ def calculate_payment(total_amount: float) -> bool:
     amount = float(input())
     return total_amount - amount
 
+def get_firstname():
+    '''ฟังก์ชันที่ดึงเอาชื่อต้นของลูกค้ามา'''
+    name = data.get_user_info(username)
+    firstname = name['firstname']
+    return firstname
 
 def main():
     '''ฟังก์ชันหลัก'''
@@ -174,7 +179,7 @@ def main():
                                     break
                                 elif choose_choice == "1":
                                     table_number = input("Enter the table number you want to book: ")
-                                    book_result = book_table(table_number, username)
+                                    book_result = book_table(table_number, get_firstname())
                                     if book_result:
                                         print("Table booked successfully!")
                                         print("\nYou can now proceed to order .")
