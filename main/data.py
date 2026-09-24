@@ -1,5 +1,6 @@
 import sqlite3
 
+
 def connect_db():
     """
     ฟังก์ชันสำหรับเชื่อมต่อฐานข้อมูล SQLite
@@ -15,18 +16,26 @@ def login_user(username: str, password: str)-> bool:
     ฟังก์ชันสำหรับตรวจสอบการเข้าสู่ระบบของผู้ใช้
     Return: bool (True หากเข้าสู่ระบบสำเร็จ, False หากล้มเหลว)
     """
-    conn = connect_db()
-    cursor = conn.cursor()
+    try:
+        result = False
+        conn = connect_db()
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT * FROM User WHERE username=? AND password=?", (username, password))
+        user = cursor.fetchall()
+
+        if user is not None:
+            result = True
+        else:
+            result = False 
+
+    except sqlite3.Error as e :
+        conn.rollback()
+        print(f"SQL Error : {e}")
+    finally:
+        conn.close()
+    return result
     
-    cursor.execute("SELECT * FROM User WHERE username=? AND password=?", (username, password))
-    user = cursor.fetchone()
-    
-    conn.close()
-    
-    if user is not None:
-        return True
-    else:
-        return False 
 
 def register_user(username: str, password: str, firstname: str, lastname: str, phone: str, email: str = None, role: str = "customer") -> bool:
     """
@@ -154,20 +163,33 @@ def get_drink_item(item_id: int) -> dict | None:
     else:
         return None
 
-def add_order(totalOrder: str,quantity: int,totalPrice: float,status: str = "สั่งอาหารแล้ว",table_number: int = 1) -> bool:
+def add_order(totalOrder: str,
+              quantity: int,
+              totalPrice: float, 
+              username:str,
+              time:str,
+              status: str = "สั่งอาหารแล้ว",table_number: int = 1) -> bool:
     """
     ฟังก์ชันสำหรับเพิ่มคำสั่งซื้อของผู้ใช้
     Return: bool (True หากเพิ่มคำสั่งซื้อสำเร็จ, False หากล้มเหลว)
     """
-    conn = connect_db()
-    cursor = conn.cursor()
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        
+        # เพิ่มคำสั่งซื้อในตาราง orders
+        cursor.execute("INSERT INTO orders (menu, quantity, totalprice, status, table_no,customer,time) VALUES (?, ?, ?, ?, ?,?,?)", 
+                    (str(totalOrder), quantity, totalPrice, status, table_number,username,time))
+        conn.commit()
+        result = True
+    except sqlite3.Error as e:
+        conn.rollback()
+        print(f"SQL Error : {e}")
+        result = False
+    finally:
+        conn.close()
     
-    # เพิ่มคำสั่งซื้อในตาราง orders
-    cursor.execute("INSERT INTO orders (menu, quantity, totalprice, status, table_no) VALUES (?, ?, ?, ?, ?)", (str(totalOrder), quantity, totalPrice, status, table_number))
-    conn.commit()
-    conn.close()
-    
-    return True
+    return result
 
 def update_order_status(order_id: int, new_status: str) -> bool:
     """
@@ -201,13 +223,52 @@ def get_order(table_number: str) -> dict | None:
             "no_order": order[0],
             "totalorder": order[1],
             "quantity": order[2],
-            "totalprice": order[3],
+            "totalprice": float(order[3]),
             "status": order[4],
             "table_no": order[5]
         }
         return order_info
     else:
         return None
+    
+def get_order_user(username: str) -> dict | None:
+    """
+    ฟังก์ชันสำหรับดึงข้อมูลคำสั่งซื้อของโต๊ะที่กำหนด
+    Return: dict (ข้อมูลคำสั่งซื้อ) หรือ None หากไม่พบคำสั่งซื้อ
+    """
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT * FROM orders WHERE customer=?", (username,))
+        order = cursor.fetchall()
+
+        
+    except sqlite3.Error as e :
+        print(f"Database error occurred: {e}")
+        conn.rollback()
+    finally:
+        conn.close()
+    return order
+
+def group_order(username:str)-> list[dict]:
+    """รวมกลุ่มของ order ที่ลูกค้าสั่ง"""
+
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT menu , customer , status , SUM(quantity) ,SUM(totalprice) FROM orders WHERE customer = ? GROUP BY menu,customer",(username,))
+        order = cursor.fetchall()
+
+    except sqlite3.Error as e :
+        conn.rollback()
+        print(f"SQL Error : {e}")
+        order = None
+    finally:
+        conn.close()
+
+    return order
 
 def add_menu_item(name: str, description: str, price: float) -> bool:
     """
@@ -282,14 +343,22 @@ def update_table_status(table_number: str, new_status: str,customer: str) -> boo
     ฟังก์ชันสำหรับอัปเดตสถานะโต๊ะ
     Return: bool (True หากอัปเดตสำเร็จ, False หากล้มเหลว)
     """
-    conn = connect_db()
-    cursor = conn.cursor()
+
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE dining_tables SET status=? , customer=? WHERE table_no=?", (new_status, customer, table_number))
+        conn.commit()
+        result = True
+    except sqlite3.Error as e :
+        print(f"Database error occurred: {e}")
+        conn.rollback()
+        result = False
+    finally:
+        conn.close()
     
-    cursor.execute("UPDATE dining_tables SET status=? , customer=? WHERE table_no=?", (new_status, customer, table_number))
-    conn.commit()
-    conn.close()
+    return result
     
-    return True
 def get_table_available() -> list:
     """
     ฟังก์ชันสำหรับดึงข้อมูลโต๊ะที่ว่าง
@@ -315,18 +384,20 @@ def check_bill(table_number: str) -> float:
     orders = get_order(table_number)
     
     if orders is not None:
-        for order in orders:
-            total_bill += order[3]
+        for _ in orders: 
+            total_bill += orders["totalprice"]
     
     return total_bill
 
 if __name__ == "__main__":
-    '''update_table_status("A1",'ว่าง', 'NULL')
-    update_table_status("A2",'ว่าง', 'NULL')
-    update_table_status("A3",'ว่าง', 'NULL')
-    update_table_status("A4",'ว่าง', 'NULL')
-    update_table_status("B1",'ว่าง', 'NULL')
-    update_table_status("B3",'ว่าง', 'NULL')
-    update_table_status("B2",'ว่าง','NULL')
-    update_table_status("B4",'ว่าง','NULL')'''
+    '''update_table_status("A1",'ว่าง', None)
+    update_table_status("A2",'ว่าง', None)
+    update_table_status("A3",'ว่าง', None)
+    update_table_status("A4",'ว่าง', None)
+    update_table_status("B1",'ว่าง', None)
+    update_table_status("B3",'ว่าง', None)
+    update_table_status("B2",'ว่าง',None)
+    update_table_status("B4",'ว่าง',None)'''
+
+
 

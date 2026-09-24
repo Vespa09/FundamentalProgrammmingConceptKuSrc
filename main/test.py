@@ -1,4 +1,5 @@
-import data 
+import data
+import order
 import os
 
 def clear_screen():
@@ -75,55 +76,7 @@ def book_table(table_number: str, customer: str) -> bool:
     
     return True  # จองสำเร็จ
 
-def menu_food():
-    """
-    ฟังก์ชันสำหรับแสดงเมนูอาหารของโปรแกรม
-    """
-    return data.menu()
 
-def menu_drink():
-    """
-    ฟังก์ชันสำหรับแสดงเมนูเครื่องดื่มของโปรแกรม
-    """
-    return data.menu_drink()
-
-def order_food(item_id: int, quantity: int, table:str) -> bool:
-    """
-    ฟังก์ชันสำหรับสั่งอาหาร
-    Return: bool (True หากสั่งอาหารสำเร็จ, False หากล้มเหลว)
-    """
-    item = data.get_menu_item(item_id)
-    print(item)
-    if item is None:
-        result =  False  # เมนูไม่ถูกต้อง
-    else:
-        total_price = item["price"] * quantity
-        order_result = data.add_order(item["name"], quantity, total_price, table_number=table)
-    drink_item = data.get_drink_item(item_id)
-
-    return order_result  # คืนค่า True หากสั่งอาหารสำเร็จ, False หากล้มเหลว
-
-
-def order_drink(item_id: int, quantity: int, table_no: str) -> bool:
-    """
-    ฟังก์ชันสำหรับสั่งเครื่องดื่ม
-    Return: bool (True หากสั่งเครื่องดื่มสำเร็จ, False หากล้มเหลว)
-    """
-    item = data.get_drink_item(item_id)
-    if item is None:
-        return False  # เมนูไม่ถูกต้อง
-    
-    total_price = item["price"] * quantity
-    order_result = data.add_order(item["name"], quantity, total_price, table_number = table_no)
-    
-    return order_result  # คืนค่า True หากสั่งเครื่องดื่มสำเร็จ, False หากล้มเหลว
-
-def check_bill(table_number: str) -> float:
-    """
-    ฟังก์ชันสำหรับตรวจสอบบิลของโต๊ะ
-    Return: float (ยอดรวมทั้งหมดของโต๊ะ)
-    """
-    return data.check_bill(table_number)
 
 def calculate_payment(total_amount: float) -> bool:
     """
@@ -187,7 +140,7 @@ def main():
                                         while order_choice.lower() == "y":
                                             clear_screen()
                                             print("List of menu :")
-                                            menu_items = menu_food() + menu_drink()
+                                            menu_items = order.menu_food() + order.menu_drink()
                                             for item in menu_items:
                                                 print(f"ID: {item[0]}, Name: {item[1]}, Description: {item[3]}, Price: {item[2]}")
                                             
@@ -198,7 +151,7 @@ def main():
                                             elif order_choice == "1":
                                                 item_id = input("Enter the food item ID you want to order: ")
                                                 quantity = int(input("Enter the quantity: "))
-                                                order_result = order_food(item_id, quantity,table_number)
+                                                order_result = order.order_food(item_id, quantity,table_number)
                                                 if order_result:
                                                     print("Food ordered successfully!")
                                                 else:
@@ -206,13 +159,13 @@ def main():
                                             elif order_choice == "2":
                                                 item_id = input("Enter the drink item ID you want to order: ")
                                                 quantity = int(input("Enter the quantity: "))
-                                                order_result = order_drink(item_id, quantity,table_number)
+                                                order_result = order.order_drink(item_id, quantity,table_number)
                                                 if order_result:
                                                     print("Drink ordered successfully!")
                                                 else:
                                                     print("Failed to order drink.")
                                             elif order_choice == "3":
-                                                check_bill(table_number)
+                                                order.check_bill(table_number)
                                                 print("Choose your payment method: \n 1. Cash \n 2. Credit card \n 3.cancel")
                                                 choose_payment = input()
                                                 if choose_payment == "1":
