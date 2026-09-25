@@ -6,13 +6,7 @@ import data
 
 def clearscreen():
     os.system('cls' if os.name == 'nt' else 'clear')
-username = ''
-def enter_user():
-    global username
-    username = enteruser.get()
-    password = enterpass.get()
-    input_user = {"user": username,"password":password}
-    return input_user
+
 
 def show_password():
     if enterpass.cget('show') == "*":
@@ -59,8 +53,11 @@ def multi_page(target_frame):
     target_frame.pack(fill='both',expand = True ,)
 
 def check_pass():
+    username = enteruser.get()
+    password = enterpass.get()
+    input_user = {"user": username,"password":password}
 
-    data = logic.logic_function(enter_user())
+    data = logic.logic_function(input_user)
     if data:
         multi_page(main_frame)
     else:
@@ -74,8 +71,6 @@ def register():
     lastname = entryrg5.get()
     phone = entryrg6.get()
     email = entryrg7.get()
-
-    
         
     if password1 != password2:
         lblRgError.configure(text = 'รหัสผ่านไม่ตรงกัน')
@@ -192,7 +187,6 @@ button.pack(pady = 10)
 lable4.pack()
 buttonregis.pack()
 buttonback.pack()
-enter_user()
 # ============================================================================================================
 
 # ================================================== register frame ==========================================
@@ -217,20 +211,20 @@ entryrg7 = ctk.CTkEntry(register_frame,placeholder_text="ใส่ E-mail ขอ
 buttonRgsp1 = ctk.CTkButton(register_frame,text='😑',fg_color='transparent',hover=False,command=show_passwordRg1)
 buttonRgsp2 = ctk.CTkButton(register_frame,text='😑',fg_color='transparent',hover=False,command=show_passwordRg2)
 buttonRg = ctk.CTkButton(register_frame,text='Enter',command=register)
-buttonRgback =ctk.CTkButton(register_frame,text="Back",command=lambda: multi_page(main_frame))
+buttonRgback =ctk.CTkButton(register_frame,text="Back",command=lambda: multi_page(login_frame))
 
 lblrg1.pack()
 lblRgError.pack()
-lblrg2.pack(pady = 10)
+lblrg2.pack(pady = 5)
 entryrg1.pack()
-lblrg3.pack(pady=10)
+lblrg3.pack(pady=5)
 entryrg2.pack()
 buttonRgsp1.pack()
 entryrg3.pack()
 buttonRgsp2.pack()
-lblrg4.pack(pady = 10)
+lblrg4.pack(pady = 5)
 entryrg4.pack()
-lblrg5.pack(pady = 10)
+lblrg5.pack(pady = 5)
 entryrg5.pack()
 lblrg6.pack()
 entryrg6.pack()
@@ -238,7 +232,7 @@ lblrg7.pack()
 entryrg7.pack()
 
 buttonRg.pack()
-buttonRgback.pack()
+buttonRgback.pack(pady = 5)
 
 # ============================================================================================================
 

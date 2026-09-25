@@ -35,28 +35,76 @@ def login_user(username: str, password: str)-> bool:
     finally:
         conn.close()
     return result
-    
 
-def register_user(username: str, password: str, firstname: str, lastname: str, phone: str, email: str = None, role: str = "customer") -> bool:
+def check_phone(phone:str)->int:
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM User WHERE phone = ?",(phone,))
+    if cursor.fetchall() is not None:
+        conn.close()
+        return 0
+    else:
+        conn.close()
+        return 1
+
+def check_email(email:str)-> int:
+    try:
+        if email == '' or email == None:
+            return 1
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM User WHERE email = ?",(email,))
+        ce = cursor.fetchall()
+        if ce is not None :
+            conn.close()
+            return 0
+        else:
+            conn.close()
+            return 1
+    except sqlite3.Error as e :
+        conn.rollback()
+        print(f"SQL Error : {e}")
+        conn.close()
+
+def register_user(username: str, password: str, firstname: str, lastname: str, phone: str, email: str = None, role: str = "customer") -> bool|int:
     """
     ฟังก์ชันสำหรับลงทะเบียนผู้ใช้ใหม่
     Return: bool (True หากลงทะเบียนสำเร็จ, False หากล้มเหลว)
     """
-    conn = connect_db()
-    cursor = conn.cursor()
-    
-    # ตรวจสอบว่าผู้ใช้มีอยู่แล้วหรือไม่
-    cursor.execute("SELECT * FROM User WHERE username=?", (username,))
-    existing_user = cursor.fetchone()
-    
-    if existing_user is not None:
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        
+        # ตรวจสอบว่าผู้ใช้มีอยู่แล้วหรือไม่
+        cursor.execute("SELECT * FROM User WHERE username=?", (username,))
+        existing_user = cursor.fetchone()
+
+        cphone = check_phone(phone)
+        cemail = check_email(email)
+
+        if existing_user is not None:
+            conn.close()
+            return 1  # ผู้ใช้มีอยู่แล้ว
+        elif cphone == 0:
+            conn.close()
+            return 2
+        elif cemail == 0:
+            conn.close()
+            return 3
+
+              
+
+        
+        cursor.execute("INSERT INTO User (username, password, firstname, lastname, phone, email, role) VALUES (?, ?, ?, ?, ?, ?, ?)", (username, password, firstname, lastname, phone, email, role))
+        conn.commit()
+        
+        # เพิ่มผู้ใช้ใหม่
+    except sqlite3.Error as e :
+        conn.rollback()
+        print(f"SQL Error : {e}")
+        return False
+    finally:
         conn.close()
-        return False  # ผู้ใช้มีอยู่แล้ว
-    
-    # เพิ่มผู้ใช้ใหม่
-    cursor.execute("INSERT INTO User (username, password, firstname, lastname, phone, email, role) VALUES (?, ?, ?, ?, ?, ?, ?)", (username, password, firstname, lastname, phone, email, role))
-    conn.commit()
-    conn.close()
     
     return True  # ลงทะเบียนสำเร็จ
 
