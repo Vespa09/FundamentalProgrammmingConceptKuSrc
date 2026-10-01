@@ -6,6 +6,11 @@ def timenows()->str:
     formatted = timenow.strftime("%H:%M:%S")
     return formatted
 
+def day_now() -> str :
+    daynow = datetime.now()
+    formatted = daynow.strftime("%d/%m/%Y")
+    return formatted
+
 def menu_food():
     """
     ฟังก์ชันสำหรับแสดงเมนูอาหารของโปรแกรม
@@ -24,14 +29,11 @@ def order_food(item_id: int, quantity: int, table:str, username:str) -> bool:
     Return: bool (True หากสั่งอาหารสำเร็จ, False หากล้มเหลว)
     """
     item = data.get_menu_item(item_id)
-    print(item)
     if item is None:
-        result =  False  # เมนูไม่ถูกต้อง
-    else:
-        total_price = item["price"] * quantity
-        order_result = data.add_order(item["name"], quantity, total_price,username,timenows(),table_number=table)
+        return False
+    total_price = item["price"] * quantity
 
-    return order_result  # คืนค่า True หากสั่งอาหารสำเร็จ, False หากล้มเหลว
+    return data.add_order(item["name"], quantity, total_price,username,day_now(),timenows(),table_number=table)  # คืนค่า True หากสั่งอาหารสำเร็จ, False หากล้มเหลว
 
 
 def order_drink(item_id: int, quantity: int, table_no: str,username:str) -> bool:

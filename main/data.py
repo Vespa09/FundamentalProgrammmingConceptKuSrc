@@ -24,7 +24,7 @@ def login_user(username: str, password: str)-> bool:
         cursor.execute("SELECT * FROM User WHERE username=? AND password=?", (username, password))
         user = cursor.fetchall()
 
-        if user is not None:
+        if user != []:
             result = True
         else:
             result = False 
@@ -40,7 +40,7 @@ def check_phone(phone:str)->int:
     conn = connect_db()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM User WHERE phone = ?",(phone,))
-    if cursor.fetchall() is not None:
+    if cursor.fetchall() != []:
         conn.close()
         return 0
     else:
@@ -49,13 +49,11 @@ def check_phone(phone:str)->int:
 
 def check_email(email:str)-> int:
     try:
-        if email == '' or email == None:
-            return 1
         conn = connect_db()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM User WHERE email = ?",(email,))
         ce = cursor.fetchall()
-        if ce is not None :
+        if ce != [] :
             conn.close()
             return 0
         else:
@@ -215,8 +213,9 @@ def add_order(totalOrder: str,
               quantity: int,
               totalPrice: float, 
               username:str,
+              day,
               time:str,
-              status: str = "สั่งอาหารแล้ว",table_number: int = 1) -> bool:
+              status: str = "สั่งอาหารแล้ว",table_number: int = 1,status_pay : str = 'ยังไม่จ่าย') -> bool:
     """
     ฟังก์ชันสำหรับเพิ่มคำสั่งซื้อของผู้ใช้
     Return: bool (True หากเพิ่มคำสั่งซื้อสำเร็จ, False หากล้มเหลว)
@@ -226,8 +225,8 @@ def add_order(totalOrder: str,
         cursor = conn.cursor()
         
         # เพิ่มคำสั่งซื้อในตาราง orders
-        cursor.execute("INSERT INTO orders (menu, quantity, totalprice, status, table_no,customer,time) VALUES (?, ?, ?, ?, ?,?,?)", 
-                    (str(totalOrder), quantity, totalPrice, status, table_number,username,time))
+        cursor.execute("INSERT INTO orders (menu, quantity, totalprice, status, table_no,customer,day,time,status_pay) VALUES (?, ?, ?, ?, ?,?,?,?,?)", 
+                    (str(totalOrder), quantity, totalPrice, status, table_number,username,day,time,status_pay))
         conn.commit()
         result = True
     except sqlite3.Error as e:
@@ -262,7 +261,7 @@ def get_order(table_number: str) -> dict | None:
     cursor = conn.cursor()
     
     cursor.execute("SELECT * FROM orders WHERE table_no=?", (table_number,))
-    order = cursor.fetchone()
+    order = cursor.fetchall()
     
     conn.close()
     
@@ -436,6 +435,20 @@ def check_bill(table_number: str) -> float:
             total_bill += orders["totalprice"]
     
     return total_bill
+
+def check_bill_user(username:str)-> float:
+    """
+        ฟังก์ชันสำหรับตรวจสอบบิลของผู้ใช้
+        Return: float (ยอดรวมทั้งหมดของโต๊ะ)
+        """
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT SUM(totalprice) FROM orders WHERE status_pay = 'ยังไม่จ่าย' AND customer = ? ",(username,))
+    price = cursor.fetchone()
+    conn.close()
+
+    return float(price[0]) if price[0] is not None else 0.0
 
 if __name__ == "__main__":
     '''update_table_status("A1",'ว่าง', None)

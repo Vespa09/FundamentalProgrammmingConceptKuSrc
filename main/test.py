@@ -9,7 +9,6 @@ def clear_screen():
 def logic_function():
     '''ฟังก์ชันล็อกอิน'''
     while True:
-        print("username: ")
         global username
         username = input()
         print("password: ")
@@ -151,7 +150,7 @@ def main():
                                             elif order_choice == "1":
                                                 item_id = input("Enter the food item ID you want to order: ")
                                                 quantity = int(input("Enter the quantity: "))
-                                                order_result = order.order_food(item_id, quantity,table_number)
+                                                order_result = order.order_food(item_id, quantity,table_number,username)
                                                 if order_result:
                                                     print("Food ordered successfully!")
                                                 else:
