@@ -406,7 +406,7 @@ def update_table_status(table_number: str, new_status: str,customer: str) -> boo
     
     return result
     
-def get_table_available() -> list:
+def get_table_available(table_number,booking_date, time_slot) -> list:
     """
     ฟังก์ชันสำหรับดึงข้อมูลโต๊ะที่ว่าง
     Return: list (รายการโต๊ะที่ว่าง)
@@ -414,13 +414,66 @@ def get_table_available() -> list:
     conn = connect_db()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT * FROM dining_tables WHERE status='ว่าง'")
+    cursor.execute( """
+        SELECT * FROM reservations WHERE table_no = ? AND booking_date = ? AND time_slot = ? AND status = 'confirmed'
+    """, (table_number,booking_date, time_slot))
     available_tables = cursor.fetchall()
     
     conn.close()
-    
-    return available_tables
 
+    avb_tables = [{"table_no":table[1],"date":table[3],"time_slot":table[4],"status":table[5]} for table in available_tables]
+    
+    return avb_tables
+
+def get_available_tables(booking_date: str, time_slot: str) -> list:
+    """ดึงรายการโต๊ะที่ว่างในวันที่และรอบเวลาที่เลือก"""
+    conn = connect_db()
+    cursor = conn.cursor()
+    
+    query = """
+        SELECT table_no, capacity, cost 
+        FROM dining_tables 
+        WHERE table_no NOT IN (
+            SELECT table_no 
+            FROM reservations 
+            WHERE booking_date = ? 
+              AND time_slot = ? 
+              AND status = 'confirmed'
+        )
+    """
+    cursor.execute(query, (booking_date, time_slot))
+    rows = cursor.fetchall()
+    conn.close()
+
+    return [{"table_no": r[0], "capacity": r[1], "cost": r[2], "status": "ว่าง"} for r in rows]
+
+def create_reservation(table_no: str, customer: str, booking_date: str, time_slot: str) -> bool:
+    """บันทึกข้อมูลการจองลงตาราง reservations"""
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        
+        # Double check ว่าโต๊ะยังว่างอยู่จริงก่อนบันทึก
+        cursor.execute("""
+            SELECT COUNT(*) FROM reservations 
+            WHERE table_no = ? AND booking_date = ? AND time_slot = ? AND status = 'confirmed'
+        """, (table_no, booking_date, time_slot))
+        
+        if cursor.fetchone()[0] > 0:
+            conn.close()
+            return False  # โต๊ะถูกจองไปแล้วในรอบนี้
+
+        cursor.execute("""
+            INSERT INTO reservations (table_no, customer, booking_date, time_slot, status)
+            VALUES (?, ?, ?, ?, 'confirmed')
+        """, (table_no, customer, booking_date, time_slot))
+        
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"[DB Error create_reservation]: {e}")
+        return False
 
 def check_bill(table_number: str) -> float:
     """
