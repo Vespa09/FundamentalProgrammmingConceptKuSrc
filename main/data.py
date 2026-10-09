@@ -287,7 +287,7 @@ def get_order_user(username: str) -> dict | None:
         conn = connect_db()
         cursor = conn.cursor()
         
-        cursor.execute("SELECT * FROM orders WHERE customer=?", (username,))
+        cursor.execute("SELECT * FROM orders WHERE customer=? AND status = 'ยังไม่จ่าย' ", (username,))
         order = cursor.fetchall()
 
         
@@ -362,7 +362,7 @@ def add_table(table_number: str ,capacity : int , status : str = "ว่าง")
     
     return True
 
-def get_table(table_number: str) -> dict | None:
+def get_table(username: str) -> list[dict] | None:
     """
     ฟังก์ชันสำหรับดึงข้อมูลโต๊ะที่กำหนด
     Return: dict (ข้อมูลโต๊ะ) หรือ None หากไม่พบโต๊ะ
@@ -370,17 +370,20 @@ def get_table(table_number: str) -> dict | None:
     conn = connect_db()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT * FROM dining_tables WHERE table_no=?", (table_number,))
-    table = cursor.fetchone()
+    cursor.execute("SELECT * FROM reservations WHERE customer=? AND date(booking_date) >= date('now','localtime')", (username,))
+    rows = cursor.fetchall()
     
     conn.close()
-    
-    if table is not None:
-        table_info = {
-            "table_no": table[0],
-            "capacity": table[1],
-            "status": table[2]
-        }
+    table_info = []
+    if rows is not None:
+        for table in rows:
+            table_info.append({
+            "table_no": table[1],
+            "customer": table[2],
+            "day":table[3],
+            "time":table[4],
+            "status": table[5]
+        })
         return table_info
     else:
         return None

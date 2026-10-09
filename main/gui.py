@@ -64,10 +64,18 @@ def multi_page(target_frame):
     register_frame.pack_forget()
     Booking.pack_forget()
     Order.pack_forget()
+    Cart.pack_forget()
     Check_Bill.pack_forget()
 
     if target_frame == Booking :
         load_table_data()
+
+    elif target_frame == Order :
+        load_data_reservations()
+
+    elif target_frame == Cart :
+        reload_cart()
+
 
     target_frame.pack(fill='both',expand = True ,)
 
@@ -170,6 +178,7 @@ def logout():
     current_user = ''
     name = ''
     lblheadmain1.configure(text = '')
+    clear_cart()
     multi_page(login_frame)
     
 def transection_main(choice : str):
@@ -227,16 +236,151 @@ def auto_set_end_time(selected_start_time: str):
     except Exception as e:
         print(f"[Error auto_set_end_time]: {e}")
 
-def show_msg_error(message:str):
+def show_msg_error(message:str,color : str = '#ff0000'):
     dialog = ctk.CTkToplevel(app)
     dialog.title("Error")
     dialog.geometry('300x150')
     dialog.grab_set()
-    lableError = ctk.CTkLabel(dialog, text=message, text_color='#ff0000')
+    lableError = ctk.CTkLabel(dialog, text=message, text_color=color)
     lableError.pack(pady=20)
 
     entererror = ctk.CTkButton(dialog, text='OK', command=dialog.destroy)
     entererror.pack(pady=10)
+
+def load_menu():
+    """ฟังก์ชันสำหรับดึงเมนูอาหารและเครื่องดื่ม"""
+    menu_food = order.menu_food()
+    menu_drink = order.menu_drink()
+    return menu_food, menu_drink
+
+def confirm_order():
+    """ฟังก์ชันสำหรับยืนยันการสั่งอาหาร"""
+    if current_user:
+        result = data.add_order()
+        if result:
+            show_msg_error("ยืนยันการสั่งอาหารเรียบร้อยแล้ว")
+        else:
+            show_msg_error("ไม่สามารถยืนยันการสั่งอาหารได้")
+    else:
+        show_msg_error("กรุณาเข้าสู่ระบบก่อนทำรายการ")
+
+def change_qty(item_id: int, delta: int):
+    """ปรับตัวเลขบนหน้าจอชั่วคราว"""
+    current = screen_count.get(item_id, 0)
+    new_qty = max(0, current + delta)  # ป้องกันไม่ให้ต่ำกว่า 0
+    screen_count[item_id] = new_qty
+    qty_labels[item_id].configure(text=str(new_qty))    
+
+def change_qty2(item_id: int, delta: int):
+    """ปรับตัวเลขบนหน้าจอชั่วคราว"""
+    for item in cart_items :
+        if item['id'] == item_id :
+            item['qty'] += delta
+            if item['qty'] <= 0 :
+                cart_items.remove(item)
+            break
+    reload_cart()   
+
+    
+
+def confirm_to_cart():
+    """กดปุ่ม CON เพื่อโยนรายการที่มีจำนวน > 0 เข้า Cart"""
+
+    if len(option_table.get()) <= 0 or option_table.get() == 'ไม่มีโต๊ะที่จองไว้' :
+        show_msg_error("กรุณาจองโต๊ะก่อนสั่งอาหาร")
+        return
+        
+    has_items = False
+    for item in menu:
+        item_id = item[0]
+        qty = screen_count.get(item_id, 0)
+
+        if qty > 0:
+            has_items = True
+
+            cart_item = next((x for x in cart_items if x["id"] == item_id), None)
+            # ถ้ามีในตะกร้าแล้วให้บวกทบ ถ้ายังไม่มีให้สร้างใหม่
+            if cart_item:
+                cart_item['qty'] += qty
+            else:
+                cart_items.append({
+                    "id" : item_id,
+                    "name": item[1],
+                    "price": item[2],
+                    "qty": qty,
+                })
+
+            # รีเซ็ตตัวเลขบนหน้าจอกลับเป็น 0
+            screen_count[item_id] = 0
+            qty_labels[item_id].configure(text="0")
+
+    if has_items:
+        reload_cart()
+    else:
+        show_msg_error("กรุณาเพิ่มรายการอาหารก่อนยืนยัน")
+        return
+    
+
+
+def update_cart(cart:list[dict],table:dict):
+    "comfirm order in cart"
+    if not cart_items:
+        show_msg_error('ไม่มีสินค้าในตะกร้า')
+        return
+    
+    res = order.add_order(cart,current_user,table)
+    if res:
+        show_msg_error('สั่งอาหารเรียบร้อย',"#017516")
+        clear_cart()
+    else:
+        show_msg_error("ERROR 200")
+
+table_user =['ไม่มีโต๊ะที่จองไว้']
+day = ["ไม่มีวันที่จองไว้"]
+time = ["ไม่มีเวลาที่จองไว้"]
+rowstable =[]
+reservation_labels = []  # ตัวแปรสำหรับเก็บชื่อข้อความที่ไม่ซ้ำกัน
+    
+def load_data_reservations():
+
+    global table_user,day,time,rowstable,reservation_labels
+    rowstable = data.get_table(current_user)
+    if rowstable:
+
+        # Sort เรียงลำดับตาม วันที่ (day) และ เวลา (time) จากน้อยไปมาก
+        rowstable.sort(key=lambda x: (x['day'], x['time']))
+        
+        # สร้างข้อความระบุโต๊ะ + วัน + เวลา เพื่อไม่ให้ข้อความซ้ำกัน
+        reservation_labels = [
+            f"{tb['table_no']} ({tb['day']} | {tb['time']})" for tb in rowstable
+        ]
+    else :
+        table_user =['ไม่มีโต๊ะที่จองไว้']
+        day = ["ไม่มีวันที่จองไว้"]
+        time = ["ไม่มีเวลาที่จองไว้"]
+        reservation_labels = ['ไม่มีโต๊ะที่จองไว้']
+
+    option_table.configure(values = reservation_labels)
+    option_table.set(reservation_labels[0])
+
+
+def get_current_reservation() -> dict | None:
+    """ดึงข้อมูล Dict การจองที่ตรงกับข้อความที่ผู้ใช้เลือกใน OptionMenu"""
+    selected_text = option_table.get()
+    
+    if rowstable and selected_text in reservation_labels:
+        # ค้นหาตำแหน่ง Index ของข้อความ แล้วดึง Dict ลำดับเดียวกันใน rowstable มาใช้งาน
+        idx = reservation_labels.index(selected_text)
+        return rowstable[idx]
+        
+    return None
+
+def clear_cart():
+    global cart_items
+    cart_items.clear()
+
+    reload_cart()
+    
 
 
 
@@ -251,6 +395,8 @@ app.geometry("500x700")
 # ============================================= page frame =================================================
 
 def enter_booking():
+
+    """ฟังก์ชันสำหรับยืนยันการจองโต๊ะ"""
     entry_table = entryBkTable.get().strip().upper()  # เช่น "A1"
     date_user = entryBkdate.get()          # เช่น "2026-10-04"
     time_start = option_time1.get()        # เช่น "16:00"
@@ -302,7 +448,7 @@ def enter_booking():
     btn_frame.pack(pady=10)
 
     def on_comfirm():
-        dialog.destroy()
+        dialog.after(10,dialog.destroy())
 
         data.create_reservation(entry_table,current_user,date_user,timeuser)
         dialog_Order = ctk.CTkToplevel(app)
@@ -317,7 +463,7 @@ def enter_booking():
         btn_frame_order.pack(pady=10)
 
         def on_order():
-            dialog_Order.destroy()
+            dialog.after(10,dialog_Order.destroy())
             multi_page(Order)
 
         def on_cancel_order():
@@ -341,11 +487,41 @@ def enter_booking():
     btnBk_yes.pack(side="left", padx=10)
     btnBk_no.pack(side="right", padx=10)
 
+def enter_cart(cart:list[dict],table:dict):
+
+    dialog = ctk.CTkToplevel(app)
+    dialog.title("ยืนยันการสั่ง")
+    dialog.geometry('350x180')
+    dialog.grab_set()
+
+    lblCon = ctk.CTkLabel(dialog, text=f"ยืนยันการสั่งอาหารหรือไม่?", font=("Arial", 14, "bold"))
+    lblCon.pack(pady=20)
+    
+    btn_frame = ctk.CTkFrame(dialog, fg_color='transparent')
+    btn_frame.pack(pady=10)
+
+    
+    def on_comfirm():
+        update_cart(cart,table)
+        dialog.grab_release()
+        dialog.after(10,dialog.destroy)
+
+    def on_cancel():
+        dialog.destroy()
+
+    btnBk_yes = ctk.CTkButton(btn_frame,text='Yes',fg_color="#5eff00",text_color="#000000",command=on_comfirm,width=100)
+    btnBk_no = ctk.CTkButton(btn_frame,text='No',fg_color="#ff0000",text_color="#000000",command=on_cancel,width=100)
+
+    btnBk_yes.pack(side="left", padx=10)
+    btnBk_no.pack(side="right", padx=10)
+
+
 login_frame = ctk.CTkFrame(app,fg_color='transparent')
 register_frame = ctk.CTkFrame(app,fg_color='transparent')
 main_frame = ctk.CTkFrame(app,fg_color='transparent')
 Booking = ctk.CTkFrame(app,fg_color='transparent')
 Order = ctk.CTkFrame(app,fg_color='transparent')
+Cart = ctk.CTkFrame(app,fg_color='transparent')
 Check_Bill = ctk.CTkFrame(app,fg_color='transparent')
 
 # ==========================================================================================================
@@ -604,15 +780,119 @@ btbackMain.pack(pady = 5)
 # ============================================ Order frame ===================================================
 # ============================================================================================================
 
-lblod1 = ctk.CTkLabel(Order,text='Order')
-lblod2 = ctk.CTkLabel(Order,text='All Menu')
-lblodlist = ctk.CTkLabel(Order,text='')
-btbackMainOd = ctk.CTkButton(Order,text='Back',fg_color = "#ff0000",hover_color="#a80000",command=lambda: multi_page(main_frame))
+cart_items = []  # รายการอาหารที่ถูกเลือก
+screen_count = {}  # เก็บจำนวนหน้าจอของแต่ละเมนู
+qty_labels = {}  # เก็บ label ของจำนวนรายการอาหารแต่ละเมนู
 
-lblod1.pack()
-lblod2.pack()
-lblodlist.pack()
-btbackMainOd.pack()
+
+frame_order = ctk.CTkScrollableFrame(Order,label_text = "menu List")
+headerOrder_frame = ctk.CTkFrame(Order)
+headerOrder_frame1 = ctk.CTkFrame(frame_order)
+headerOrder_frame1.pack(fill = 'x' ,pady=5)
+menu = order.menu()
+if not menu:
+    show_msg_error("ไม่สามารถโหลดเมนูได้")
+else:
+
+    for item in menu:
+        item_id = item[0]
+        screen_count[item_id] = 0
+
+        row_frame = ctk.CTkFrame(frame_order, fg_color='transparent')
+
+        lbl_item_name = ctk.CTkLabel(row_frame, text=f"{item[1]} ({item[2]})", width=200, anchor='w')
+        lbl_count = ctk.CTkLabel(row_frame, text='0', width=30)
+
+        btn_minus = ctk.CTkButton(row_frame, text='-', width=30, command=lambda id=item_id: change_qty(id, -1))
+        btn_plus = ctk.CTkButton(row_frame, text='+', width=30, command=lambda id=item_id: change_qty(id, 1))
+
+        qty_labels[item_id] = lbl_count
+
+        row_frame.pack(fill='x', pady=5, padx=10)
+        lbl_item_name.pack(side='left', padx=5,expand=True)
+        btn_minus.pack(side='left', padx=5)
+        lbl_count.pack(side='left', padx=5)
+        btn_plus.pack(side='left', padx=5)
+
+
+option_table = ctk.CTkOptionMenu(headerOrder_frame1,values=table_user,fg_color='#8a8888',button_color="#005EFF",button_hover_color="#0041b2",)
+
+
+lblod1 = ctk.CTkLabel(headerOrder_frame,text='Order')
+btn_cart = ctk.CTkButton(headerOrder_frame,text="🛒",fg_color='transparent',hover_color="#8A8888",width=70,command= lambda: multi_page(Cart))
+btbackMainOd = ctk.CTkButton(headerOrder_frame,text='Back',fg_color = "transparent",hover_color="#8a8888",command=lambda: multi_page(main_frame))
+
+btnconfirm_order = ctk.CTkButton(frame_order,text='Confirm Order',fg_color="#005EFF",hover_color="#0041b2",command=confirm_to_cart)
+
+option_table.pack(side = 'bottom',fill = 'x',padx = 10)
+
+
+headerOrder_frame.pack(fill = 'x')
+btbackMainOd.pack(side='left', pady = 5)
+lblod1.pack(side= 'left' ,padx = 5 ,anchor = 'center',expand=True)
+btn_cart.pack(side = 'right',padx  = 5)
+frame_order.pack(pady = 10, padx = 10, fill='both', expand=True)
+btnconfirm_order.pack(side= 'bottom',pady = 5)
+
+# ============================================================================================================
+
+# ============================================ cart frame ====================================================
+
+qty_labels2 = {}  # เก็บ label ของจำนวนรายการอาหารแต่ละเมนู
+screen_count2 = {}  # เก็บจำนวนหน้าจอของแต่ละเมนู
+
+
+headercart_frame = ctk.CTkFrame(Cart)    
+lblCart1 = ctk.CTkLabel(headercart_frame,text='Order')
+btbackMainCart = ctk.CTkButton(headercart_frame,text='Back',fg_color = "transparent",hover_color="#8a8888",command=lambda: multi_page(Order))
+
+btn_cart_confirm = ctk.CTkButton(Cart,text='Confirm',fg_color='#005eff',hover_color='#0041b2',command=lambda: enter_cart(cart_items,get_current_reservation()))
+
+cart_frame = ctk.CTkScrollableFrame(Cart,label_text="My Cart")
+btn_clear_cart = ctk.CTkButton(Cart,text='Clear',fg_color='#ff0000',hover_color="#aa0000",command=clear_cart)
+lblCart_total = ctk.CTkLabel(Cart,text='0',bg_color="#918F8F",text_color="#0058A5")
+
+def reload_cart():
+    total_price = 0.0
+    for widget in cart_frame.winfo_children():
+        widget.destroy()
+    if not cart_items:
+        lblCart_total.configure(text="ราคารวมสุทธิ: 0.00 บาท")
+        return
+    for order_item in cart_items :
+        id_item = order_item["id"]
+        qty_item = order_item['qty']
+        subtotal = order_item["price"] * qty_item
+        total_price += subtotal
+
+        rowcart_frame = ctk.CTkFrame(cart_frame,fg_color="transparent")
+
+        lbl_cartName_item = ctk.CTkLabel(rowcart_frame,text=f"{order_item["name"]} ({order_item["price"]})",width=200,anchor='w')
+        lbl_CartCount = ctk.CTkLabel(rowcart_frame,text=qty_item, width=30)
+
+        btn_cartMinus = ctk.CTkButton(rowcart_frame,text='-' ,width=30, command=lambda id=id_item: change_qty2(id, -1))
+        btn_cartPlus = ctk.CTkButton(rowcart_frame,text='+' ,width=30, command=lambda id=id_item: change_qty2(id, 1))
+
+        qty_labels2[id_item] = lbl_CartCount
+
+        rowcart_frame.pack(fill = 'x',padx = 5,pady = 5)
+        lbl_cartName_item.pack(side = "left",padx = 5,expand = True)
+        btn_cartMinus.pack(side = "left",padx = 5)
+        lbl_CartCount.pack(side = "left",padx = 5)
+        btn_cartPlus.pack(side = "left",padx = 5)
+
+    lblCart_total.configure(text=f"ราคารวมสุทธิ: {total_price:.2f} บาท")
+
+headercart_frame.pack(fill = 'x')
+cart_frame.pack(fill = "both",expand =True,padx= 10,pady=10)
+lblCart_total.pack(fill = "x")
+btn_clear_cart.pack(side ='bottom' ,pady =  5)
+
+
+btbackMainCart.pack(side= 'left' ,padx = 5)
+lblCart1.pack(side= 'left' ,padx = 5 ,anchor = 'center',expand=True)
+btn_cart_confirm.pack(pady= 10)
+
 # ============================================================================================================
 
 # ============================================ check bill frame ==============================================

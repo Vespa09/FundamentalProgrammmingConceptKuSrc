@@ -8,47 +8,41 @@ def timenows()->str:
 
 def day_now() -> str :
     daynow = datetime.now()
-    formatted = daynow.strftime("%d/%m/%Y")
+    formatted = daynow.strftime("%Y/%m/%d")
     return formatted
 
-def menu_food():
-    """
-    ฟังก์ชันสำหรับแสดงเมนูอาหารของโปรแกรม
-    """
-    return data.menu()
-
-def menu_drink():
+def menu():
     """
     ฟังก์ชันสำหรับแสดงเมนูเครื่องดื่มของโปรแกรม
     """
-    return data.menu_drink()
+    menu_items = data.menu() + data.menu_drink()
+    return menu_items
 
-def order_food(item_id: int, quantity: int, table:str, username:str) -> bool:
+def add_order(list_order:list[dict],username:str,tables:dict) -> bool:
     """
     ฟังก์ชันสำหรับสั่งอาหาร
     Return: bool (True หากสั่งอาหารสำเร็จ, False หากล้มเหลว)
     """
-    item = data.get_menu_item(item_id)
-    if item is None:
-        return False
-    total_price = item["price"] * quantity
+    sucess = False
+    total_price = 0
+    item = ''
+    quantity = 0
 
-    return data.add_order(item["name"], quantity, total_price,username,day_now(),timenows(),table_number=table)  # คืนค่า True หากสั่งอาหารสำเร็จ, False หากล้มเหลว
-
-
-def order_drink(item_id: int, quantity: int, table_no: str,username:str) -> bool:
-    """
-    ฟังก์ชันสำหรับสั่งเครื่องดื่ม
-    Return: bool (True หากสั่งเครื่องดื่มสำเร็จ, False หากล้มเหลว)
-    """
-    item = data.get_drink_item(item_id)
-    if item is None:
-        return False  # เมนูไม่ถูกต้อง
     
-    total_price = item["price"] * quantity
-    order_result = data.add_order(item["name"], quantity, total_price,username,timenows(), table_number = table_no)
-    
-    return order_result  # คืนค่า True หากสั่งเครื่องดื่มสำเร็จ, False หากล้มเหลว
+    table = tables["table_no"]
+    day = tables["day"]
+    times = tables['time']
+
+    for items in list_order :
+        quantity = items['qty']
+        item = items['name']
+        total_price = items["price"] * quantity
+        save = data.add_order(item, quantity, total_price,username,day,times,table_number=table)
+        if save:
+            sucess = True
+
+    return sucess  # คืนค่า True หากสั่งอาหารสำเร็จ, False หากล้มเหลว
+
 
 def get_orders(username : str) -> list :
     """ฟังก์ชันสำหรับดึงข้อมูลที่ลูกค้าสั่ง"""
@@ -58,11 +52,12 @@ def get_orders(username : str) -> list :
         if order is not None:
             order_info = {
                         "no_order": order[0],
-                        "totalorder": order[1],
+                        "menu": order[1],
                         "quantity": order[2],
                         "totalprice": float(order[3]),
                         "status": order[4],
-                        "table_no": order[5]
+                        "table_no": order[5],
+                        'date': f"{order[7]} | {order[8]}"
                     }
             result.append(order_info)
         else:
@@ -91,5 +86,5 @@ def check_bill(table_number: str) -> float:
 
 if __name__ == "__main__":
     
-    show_orders('admin')
+    print(menu())
     
