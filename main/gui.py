@@ -1,3 +1,17 @@
+import sys
+import subprocess
+import importlib
+
+# รายชื่อ Library ที่จำเป็น
+REQUIRED_PACKAGES = ["customtkinter", "tkcalendar"]
+
+for package in REQUIRED_PACKAGES:
+    try:
+        importlib.import_module(package)
+    except ImportError:
+        print(f"[Auto-Installer] ไม่พบ {package} กำลังทำการติดตั้งให้อัตโนมัติ...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
 import customtkinter as ctk
 from tkcalendar import *
 import os
