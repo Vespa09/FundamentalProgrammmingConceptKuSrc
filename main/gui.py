@@ -76,6 +76,9 @@ def multi_page(target_frame):
     elif target_frame == Cart :
         reload_cart()
 
+    elif target_frame == Check_Bill:
+        load_check_bill_data()
+
 
     target_frame.pack(fill='both',expand = True ,)
 
@@ -380,7 +383,39 @@ def clear_cart():
     cart_items.clear()
 
     reload_cart()
-    
+
+def RadioPay():
+    pass
+
+def load_check_bill_data():
+    """ดึงข้อมูลรายการสั่งซื้อและยอดรวมมาแสดงในหน้า Check Bill"""
+    for widget in Cblist.winfo_children():
+        widget.destroy()
+
+    orders = data.group_order(current_user)
+    total_amount = data.check_bill_user(current_user)
+
+    if orders and total_amount > 0:
+        for idx, item in enumerate(orders, start=1):
+            menu_name = item[0]
+            qty = item[3]
+            price = item[4]
+
+            row_frame = ctk.CTkFrame(Cblist, fg_color="transparent")
+            lbl_item = ctk.CTkLabel(row_frame, text=f"{idx}. {menu_name}  x{qty}", anchor='w', font=("Arial", 12))
+            lbl_price = ctk.CTkLabel(row_frame, text=f"{price:.2f} ฿", anchor='e', font=("Arial", 12, "bold"))
+
+            row_frame.pack(fill='x', padx=5, pady=3)
+            lbl_item.pack(side='left', expand=True, fill='x')
+            lbl_price.pack(side='right')
+
+        lblCbcount.configure(text=f"ยอดรวมทั้งหมด: {total_amount:.2f} บาท")
+        btnCheckbill.configure(state="normal", fg_color="#005eff")
+    else:
+        lbl_empty = ctk.CTkLabel(Cblist, text="ไม่มีรายการอาหารที่รอชำระเงิน", text_color="#8a8888")
+        lbl_empty.pack(pady=20)
+        lblCbcount.configure(text="ยอดรวมทั้งหมด: 0.00 บาท")
+        btnCheckbill.configure(state="disabled", fg_color="#8a8888")
 
 
 
@@ -448,6 +483,7 @@ def enter_booking():
     btn_frame.pack(pady=10)
 
     def on_comfirm():
+        dialog.grab_release()
         dialog.after(10,dialog.destroy())
 
         data.create_reservation(entry_table,current_user,date_user,timeuser)
@@ -463,10 +499,12 @@ def enter_booking():
         btn_frame_order.pack(pady=10)
 
         def on_order():
+            dialog.grab_release()
             dialog.after(10,dialog_Order.destroy())
             multi_page(Order)
 
         def on_cancel_order():
+            dialog.grab_release()
             dialog_Order.destroy()
             multi_page(main_frame)  
 
@@ -479,7 +517,8 @@ def enter_booking():
 
 
     def on_cancel():
-        dialog.destroy()
+        dialog.grab_release()
+        dialog.after(10,dialog.destroy())
 
     btnBk_yes = ctk.CTkButton(btn_frame,text='Yes',fg_color="#5eff00",text_color="#000000",command=on_comfirm,width=100)
     btnBk_no = ctk.CTkButton(btn_frame,text='No',fg_color="#ff0000",text_color="#000000",command=on_cancel,width=100)
@@ -507,15 +546,64 @@ def enter_cart(cart:list[dict],table:dict):
         dialog.after(10,dialog.destroy)
 
     def on_cancel():
+        dialog.grab_release()
         dialog.destroy()
 
-    btnBk_yes = ctk.CTkButton(btn_frame,text='Yes',fg_color="#5eff00",text_color="#000000",command=on_comfirm,width=100)
-    btnBk_no = ctk.CTkButton(btn_frame,text='No',fg_color="#ff0000",text_color="#000000",command=on_cancel,width=100)
+    btnBk_yes = ctk.CTkButton(btn_frame,text='ใช่',fg_color="#5eff00",text_color="#000000",command=on_comfirm,width=100)
+    btnBk_no = ctk.CTkButton(btn_frame,text='ไม่',fg_color="#ff0000",text_color="#000000",command=on_cancel,width=100)
 
     btnBk_yes.pack(side="left", padx=10)
     btnBk_no.pack(side="right", padx=10)
 
 
+def Paycon():
+
+    total_amount = data.check_bill_user(current_user)
+    if total_amount <= 0:
+        show_msg_error("ไม่มีรายการที่ต้องชำระเงิน")
+        return
+
+    pay_method = varrdopay.get()
+    method_text = "เงินสด" if pay_method == 'cash' else ("เงินโอน" if pay_method == 'transfer' else "บัตรเครดิต")
+
+    dialog = ctk.CTkToplevel(app)
+    dialog.title("ยืนยันการสั่งซื้อ")
+    dialog.geometry('350x180')
+    dialog.grab_set()
+
+    lbl_pay = ctk.CTkLabel(
+        dialog,
+        text=f"ยอดชำระ: {total_amount:.2f} บาท\nช่องทาง: {method_text}\n\nยืนยันการชำระเงินหรือไม่?",
+        font=("Arial", 13, "bold")
+    )
+    lbl_pay.pack(pady=15)
+
+    btn_frame = ctk.CTkFrame(dialog, fg_color='transparent')
+    btn_frame.pack(pady=10)
+
+    def on_confirm():
+        dialog.grab_release()
+        dialog.after(10, dialog.destroy)
+        pay = data.pay_bill_user(current_user)
+
+        if pay:
+            show_msg_error('ชำระเงินเรียบร้อยแล้ว ขอบคุณครับ!', "#13ba00")
+            load_check_bill_data()
+        else:
+            show_msg_error('เกิดข้อผิดพลาดในการชำระเงิน')
+
+    def on_cancel():
+        dialog.grab_release()
+        dialog.after(10, dialog.destroy)
+
+    btn_payYes = ctk.CTkButton(btn_frame, text='ใช่', fg_color="#5eff00", text_color="#000000", command=on_confirm, width=100)
+    btnpayNo = ctk.CTkButton(btn_frame, text='ไม่', fg_color="#ff0000", text_color="#000000", command=on_cancel, width=100)
+
+    btn_payYes.pack(side='left', padx=10)
+    btnpayNo.pack(side='left', padx=10)
+
+varrdopay =ctk.StringVar()
+    
 login_frame = ctk.CTkFrame(app,fg_color='transparent')
 register_frame = ctk.CTkFrame(app,fg_color='transparent')
 main_frame = ctk.CTkFrame(app,fg_color='transparent')
@@ -898,15 +986,42 @@ btn_cart_confirm.pack(pady= 10)
 # ============================================ check bill frame ==============================================
 # ============================================================================================================
 
-lblCb1 = ctk.CTkLabel(Check_Bill,text='Check Bill')
-lblCb2 = ctk.CTkLabel(Check_Bill,text='All Order')
-lblCblist = ctk.CTkLabel(Check_Bill,text='')
-btbackMainCb = ctk.CTkButton(Check_Bill,text='Back',hover_color='#ff0000',command=lambda: multi_page(main_frame))
+haederCheckbill_freame = ctk.CTkFrame(Check_Bill)
+radioframe = ctk.CTkFrame(Check_Bill,fg_color='transparent')
+haederCheckbill_freame.pack(fill = 'x')
+lblCb1 = ctk.CTkLabel(haederCheckbill_freame,text='Check Bill & Payment')
+btbackMainCb = ctk.CTkButton(haederCheckbill_freame,text="Back",
+                             width= 200 ,
+                             fg_color = "transparent",hover_color="#8a8888",
+                             command=lambda: multi_page(main_frame))
 
-lblCb1.pack()
-lblCb2.pack()
-lblCblist.pack()
-btbackMainCb.pack()
+
+Cblist = ctk.CTkScrollableFrame(Check_Bill,label_text='All order')
+lblCbcount = ctk.CTkLabel(Check_Bill,text="ยอดรวมทั้งหมด: 0.00 บาท", font=("Arial", 16, "bold"), text_color="#005EFF")
+
+
+varrdopay.set('cash')
+rdopay1 = ctk.CTkRadioButton(radioframe,text='เงินสด',value='cash',variable=varrdopay,command=RadioPay)
+rdopay2 = ctk.CTkRadioButton(radioframe,text='เงินโอน',value='transfer',variable=varrdopay,command=RadioPay)
+rdopay3 = ctk.CTkRadioButton(radioframe,text='บัตรเครดิต',value='card',variable=varrdopay,command=RadioPay)
+btnCheckbill = ctk.CTkButton(Check_Bill,text="Confirm",fg_color='#005eff',hover_color='#0041b2',command=Paycon)
+
+
+Cblist.pack(fill = 'both',expand = True,pady = 10 ,padx = 10)
+lblCbcount.pack(pady = 10)
+
+radioframe.pack(fill = "x",pady = 10,padx =10)
+
+rdopay1.pack(side = 'left',pady = 10,padx = 10)
+rdopay2.pack(side = 'left',pady = 10,padx = 10)
+rdopay3.pack(side = 'left',pady = 10,padx = 10)
+
+btnCheckbill.pack(pady = 10,padx = 10)
+
+btbackMainCb.pack(side = 'left',padx = 10)
+lblCb1.pack(anchor = "center",side = 'left',padx = 10)
+
+
 # ============================================================================================================
 
 app.mainloop()

@@ -283,6 +283,7 @@ def get_order_user(username: str) -> dict | None:
     ฟังก์ชันสำหรับดึงข้อมูลคำสั่งซื้อของโต๊ะที่กำหนด
     Return: dict (ข้อมูลคำสั่งซื้อ) หรือ None หากไม่พบคำสั่งซื้อ
     """
+    order = []
     try:
         conn = connect_db()
         cursor = conn.cursor()
@@ -305,7 +306,7 @@ def group_order(username:str)-> list[dict]:
         conn = connect_db()
         cursor = conn.cursor()
 
-        cursor.execute("SELECT menu , customer , status , SUM(quantity) ,SUM(totalprice) FROM orders WHERE customer = ? GROUP BY menu,customer",(username,))
+        cursor.execute("SELECT menu , customer , status , SUM(quantity) ,SUM(totalprice) FROM orders WHERE customer = ? AND status_pay = 'ยังไม่จ่าย' GROUP BY menu,customer",(username,))
         order = cursor.fetchall()
 
     except sqlite3.Error as e :
@@ -505,6 +506,29 @@ def check_bill_user(username:str)-> float:
     conn.close()
 
     return float(price[0]) if price[0] is not None else 0.0
+
+def pay_bill_user(username: str) -> bool:
+    """
+    ฟังก์ชันสำหรับอัปเดตสถานะชำระเงินของผู้ใช้จาก 'ยังไม่จ่าย' เป็น 'จ่ายแล้ว'
+    Return: bool (True หากอัปเดตสำเร็จ, False หากล้มเหลว)
+    """
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE orders SET status_pay = 'จ่ายแล้ว', status = 'ชำระเงินแล้ว' WHERE customer = ? AND status_pay = 'ยังไม่จ่าย'",
+            (username,)
+        )
+        conn.commit()
+        result = True
+    except sqlite3.Error as e:
+        conn.rollback()
+        print(f"[SQL Error pay_bill_user]: {e}")
+        result = False
+    finally:
+        conn.close()
+    
+    return result
 
 if __name__ == "__main__":
     '''update_table_status("A1",'ว่าง', None)
