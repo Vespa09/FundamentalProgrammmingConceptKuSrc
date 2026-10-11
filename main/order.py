@@ -18,7 +18,7 @@ def menu():
     menu_items = data.menu() + data.menu_drink()
     return menu_items
 
-def add_order(list_order:list[dict],username:str,tables:dict) -> bool:
+def add_order(list_order:list[dict],username:str) -> bool:
     """
     ฟังก์ชันสำหรับสั่งอาหาร
     Return: bool (True หากสั่งอาหารสำเร็จ, False หากล้มเหลว)
@@ -28,16 +28,20 @@ def add_order(list_order:list[dict],username:str,tables:dict) -> bool:
     item = ''
     quantity = 0
 
-    
-    table = tables["table_no"]
-    day = tables["day"]
-    times = tables['time']
-
-    for items in list_order :
+    for items in list_order:
         quantity = items['qty']
-        item = items['name']
+        item_name = items['name']
         total_price = items["price"] * quantity
-        save = data.add_order(item, quantity, total_price,username,day,times,table_number=table)
+        
+        # ดึง Dict โต๊ะที่ผูกไว้กับไอเทมนี้
+        table_info = items["table"]
+        table = table_info["table_no"]
+        day = table_info["day"]
+        timestart = table_info['timestart']
+        timeend = table_info['timeend']
+        times = f'{timestart} - {timeend}'
+
+        save = data.add_order(item_name, quantity, total_price, username, day, times, table_number=table)
         if save:
             sucess = True
 
