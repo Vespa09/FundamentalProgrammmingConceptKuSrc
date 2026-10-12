@@ -14,7 +14,6 @@ for package in REQUIRED_PACKAGES:
 
 import customtkinter as ctk
 from tkcalendar import *
-import os
 import order
 import logic
 import data
@@ -30,8 +29,6 @@ def day_now() -> str :
     formatted = daynow.strftime("%Y-%m-%d")
     return formatted
 
-def clearscreen():
-    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def show_password():
