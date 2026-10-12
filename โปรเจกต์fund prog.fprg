@@ -1,41 +1,221 @@
 <?xml version="1.0"?>
 <flowgorithm fileversion="4.2">
     <attributes>
-        <attribute name="name" value="&#3650;&#3611;&#3619;&#3648;&#3592;&#3585;&#3605;&#3660;fund prog"/>
-        <attribute name="authors" value="vespa"/>
-        <attribute name="about" value=""/>
-        <attribute name="saved" value="2026-09-08 12:54:17 PM"/>
+        <attribute name="name" value="PyRestaurant Complete System Flow"/>
+        <attribute name="authors" value="PyRestaurant Team"/>
+        <attribute name="about" value="Complete Flowchart for PyRestaurant System (CustomTkinter &amp; SQLite3)"/>
+        <attribute name="saved" value="2026-10-11 03:40:00 PM"/>
         <attribute name="created" value="dmVzcGE7VkVTUEE7MjAyNi0wOS0wODsxMjozMDoyNSBQTTsyMjEw"/>
-        <attribute name="edited" value="dmVzcGE7VkVTUEE7MjAyNi0wOS0wODsxMjo1NDoxNyBQTTsxOzIzMjU="/>
+        <attribute name="edited" value="dmVzcGE7VkVTUEE7MjAyNi0xMC0xMTswMzo0MDowMCBQTTsyMzI1"/>
     </attributes>
     <function name="Main" type="None" variable="">
         <parameters/>
         <body>
-            <declare name="username, usernamedata, table, confirm" type="String" array="False" size=""/>
-            <declare name="password, passworddata, datetime, pay" type="Integer" array="False" size=""/>
-            <assign variable="usernamedata" expression="&quot;vespa&quot;"/>
-            <assign variable="passworddata" expression="123"/>
-            <do expression="(username != usernamedata) and (password != passworddata)">
-                <output expression="&quot;Enter Username :&quot;" newline="True"/>
-                <input variable="username"/>
-                <output expression="&quot;Enter Password&quot;" newline="True"/>
-                <input variable="password"/>
-            </do>
-            <output expression="&quot;Enter Datetime&quot;" newline="True"/>
-            <input variable="datetime"/>
-            <output expression="&quot;&#3648;&#3621;&#3639;&#3629;&#3585;&#3605;&#3635;&#3649;&#3627;&#3609;&#3656;&#3591;&#3650;&#3605;&#3658;&#3632;&quot;" newline="True"/>
-            <input variable="table"/>
-            <output expression="&quot;&#3618;&#3639;&#3609;&#3618;&#3633;&#3609;&#3585;&#3634;&#3619;&#3592;&#3629;&#3591; [Y/N]&quot;" newline="True"/>
-            <input variable="confirm"/>
-            <if expression="confirm == &quot;y&quot; || confirm == &quot;Y&quot;">
-                <then>
-                    <output expression="&quot;&#3648;&#3621;&#3639;&#3629;&#3585;&#3623;&#3636;&#3608;&#3637;&#3594;&#3635;&#3619;&#3632;&#3648;&#3591;&#3636;&#3609;&quot;" newline="True"/>
-                    <output expression="&quot;1.&#3648;&#3591;&#3636;&#3609;&#3626;&#3604; 2.&#3650;&#3629;&#3609;&#3612;&#3656;&#3634;&#3609;&#3608;&#3609;&#3634;&#3588;&#3634;&#3619; 3.&#3610;&#3633;&#3605;&#3619;&#3648;&#3588;&#3619;&#3604;&#3636;&#3605; &quot;" newline="True"/>
-                    <input variable="pay"/>
-                    <output expression="&quot;&#3594;&#3635;&#3619;&#3632;&#3648;&#3591;&#3636;&#3609;&#3626;&#3635;&#3648;&#3619;&#3655;&#3592;&quot;" newline="True"/>
-                </then>
-                <else/>
-            </if>
+            <!-- ตัวแปรควบคุมระบบและตัวเลือก -->
+            <declare name="authChoice, mainChoice, payChoice, itemQty" type="Integer" array="False" size=""/>
+            <declare name="username, password, firstname, lastname, phone, email" type="String" array="False" size=""/>
+            <declare name="bookingDate, timeStart, timeEnd, tableNo, confirm, payMethodText" type="String" array="False" size=""/>
+            <declare name="isLoggedIn, isRunning, orderingNow, payingNow" type="Boolean" array="False" size=""/>
+            <declare name="foodTotal, tableCost, netTotal" type="Real" array="False" size=""/>
+            
+            <assign variable="isLoggedIn" expression="False"/>
+            <assign variable="isRunning" expression="True"/>
+            <assign variable="orderingNow" expression="False"/>
+            <assign variable="payingNow" expression="False"/>
+            
+            <!-- 1. ส่วนเข้าสู่ระบบ / สมัครสมาชิก (Authentication Loop) -->
+            <while expression="not isLoggedIn">
+                <output expression="&quot;=== Welcome to PyRestaurant ===&quot;" newline="True"/>
+                <output expression="&quot;1. เข้าสู่ระบบ (Login)&quot;" newline="True"/>
+                <output expression="&quot;2. สมัครสมาชิก (Register)&quot;" newline="True"/>
+                <output expression="&quot;เลือกเมนู (1-2):&quot;" newline="True"/>
+                <input variable="authChoice"/>
+                
+                <if expression="authChoice == 1">
+                    <then>
+                        <output expression="&quot;--- Login ---&quot;" newline="True"/>
+                        <output expression="&quot;Enter Username:&quot;" newline="True"/>
+                        <input variable="username"/>
+                        <output expression="&quot;Enter Password:&quot;" newline="True"/>
+                        <input variable="password"/>
+                        
+                        <!-- ตรวจสอบกับฐานข้อมูล User -->
+                        <if expression="username != &quot;&quot; and password != &quot;&quot;">
+                            <then>
+                                <assign variable="isLoggedIn" expression="True"/>
+                                <output expression="&quot;เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับ &quot; &amp; username" newline="True"/>
+                            </then>
+                            <else>
+                                <output expression="&quot;Username หรือ Password ไม่ถูกต้อง กรุณาลองใหม่&quot;" newline="True"/>
+                            </else>
+                        </if>
+                    </then>
+                    <else>
+                        <if expression="authChoice == 2">
+                            <then>
+                                <output expression="&quot;--- Register ---&quot;" newline="True"/>
+                                <output expression="&quot;Enter Username:&quot;" newline="True"/>
+                                <input variable="username"/>
+                                <output expression="&quot;Enter Password:&quot;" newline="True"/>
+                                <input variable="password"/>
+                                <output expression="&quot;Enter Firstname:&quot;" newline="True"/>
+                                <input variable="firstname"/>
+                                <output expression="&quot;Enter Lastname:&quot;" newline="True"/>
+                                <input variable="lastname"/>
+                                <output expression="&quot;Enter Phone Number:&quot;" newline="True"/>
+                                <input variable="phone"/>
+                                <output expression="&quot;Enter Email:&quot;" newline="True"/>
+                                <input variable="email"/>
+                                
+                                <output expression="&quot;สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ&quot;" newline="True"/>
+                            </then>
+                            <else>
+                                <output expression="&quot;ตัวเลือกไม่ถูกต้อง กรุณาเลือกใหม่&quot;" newline="True"/>
+                            </else>
+                        </if>
+                    </else>
+                </if>
+            </while>
+            
+            <!-- 2. วนลูปหน้าหลักของโปรแกรม (Main Application Loop) -->
+            <while expression="isRunning">
+                <output expression="&quot;====================================&quot;" newline="True"/>
+                <output expression="&quot;=== PyRestaurant Main Dashboard ===&quot;" newline="True"/>
+                <output expression="&quot;1. จองโต๊ะ (Booking Table)&quot;" newline="True"/>
+                <output expression="&quot;2. สั่งอาหาร &amp; ตะกร้าสินค้า (Order &amp; Cart)&quot;" newline="True"/>
+                <output expression="&quot;3. ตรวจสอบบิล &amp; ชำระเงิน (Check Bill &amp; Payment)&quot;" newline="True"/>
+                <output expression="&quot;4. ออกจากระบบ (Logout)&quot;" newline="True"/>
+                <output expression="&quot;เลือกเมนู (1-4):&quot;" newline="True"/>
+                <input variable="mainChoice"/>
+                
+                <if expression="mainChoice == 1">
+                    <then>
+                        <!-- โมดูลที่ 1: การจองโต๊ะ (Booking) -->
+                        <output expression="&quot;--- Module: Booking Table ---&quot;" newline="True"/>
+                        <output expression="&quot;กรอกวันที่จอง (YYYY-MM-DD):&quot;" newline="True"/>
+                        <input variable="bookingDate"/>
+                        <output expression="&quot;กรอกเวลาเริ่มต้น (เช่น 18:00):&quot;" newline="True"/>
+                        <input variable="timeStart"/>
+                        <output expression="&quot;กรอกเวลาสิ้นสุด (เช่น 19:00):&quot;" newline="True"/>
+                        <input variable="timeEnd"/>
+                        <output expression="&quot;ดึงรายการโต๊ะที่ว่างในระบบมาแสดงผล...&quot;" newline="True"/>
+                        <output expression="&quot;กรอกเลขโต๊ะที่ต้องการจอง (เช่น A1):&quot;" newline="True"/>
+                        <input variable="tableNo"/>
+                        
+                        <output expression="&quot;บันทึกการจองโต๊ะ &quot; &amp; tableNo &amp; &quot; สำเร็จ!&quot;" newline="True"/>
+                        <output expression="&quot;คุณต้องการสั่งอาหารล่วงหน้าเลยหรือไม่? (Y/N):&quot;" newline="True"/>
+                        <input variable="confirm"/>
+                        <if expression="confirm == &quot;Y&quot; or confirm == &quot;y&quot;">
+                            <then>
+                                <assign variable="orderingNow" expression="True"/>
+                            </then>
+                            <else>
+                                <assign variable="orderingNow" expression="False"/>
+                            </else>
+                        </if>
+                    </then>
+                    <else>
+                        <if expression="mainChoice == 2 or orderingNow">
+                            <then>
+                                <!-- โมดูลที่ 2: สั่งอาหารและตะกร้าสินค้า (Order & Cart) -->
+                                <output expression="&quot;--- Module: Order &amp; Cart ---&quot;" newline="True"/>
+                                <output expression="&quot;เลือกโต๊ะที่จองไว้:&quot;" newline="True"/>
+                                <input variable="tableNo"/>
+                                <output expression="&quot;แสดงรายการเมนูอาหารและเครื่องดื่ม...&quot;" newline="True"/>
+                                <output expression="&quot;เลือกจำนวนรายการอาหารที่ต้องการสั่ง:&quot;" newline="True"/>
+                                <input variable="itemQty"/>
+                                
+                                <if expression="itemQty &gt; 0">
+                                    <then>
+                                        <output expression="&quot;เพิ่มรายการเข้า Cart แยกตามโต๊ะ &quot; &amp; tableNo &amp; &quot; เรียบร้อย!&quot;" newline="True"/>
+                                        <output expression="&quot;--- หน้าตะกร้าสินค้า (Cart) ---&quot;" newline="True"/>
+                                        <output expression="&quot;แสดงรายการอาหารจัดกลุ่มแยกการ์ดรายโต๊ะ พร้อมปุ่มปรับจำนวน (+/-)&quot;" newline="True"/>
+                                        <output expression="&quot;ยืนยันคำสั่งซื้อเข้าสู่ระบบฐานข้อมูล (Y/N):&quot;" newline="True"/>
+                                        <input variable="confirm"/>
+                                        <if expression="confirm == &quot;Y&quot; or confirm == &quot;y&quot;">
+                                            <then>
+                                                <output expression="&quot;บันทึกคำสั่งซื้อลงตาราง orders ในฐานข้อมูลเรียบร้อย!&quot;" newline="True"/>
+                                                <output expression="&quot;คุณต้องการชำระเงินเลยหรือไม่? (Y/N):&quot;" newline="True"/>
+                                                <input variable="confirm"/>
+                                                <if expression="confirm == &quot;Y&quot; or confirm == &quot;y&quot;">
+                                                    <then>
+                                                        <assign variable="payingNow" expression="True"/>
+                                                    </then>
+                                                    <else>
+                                                        <assign variable="payingNow" expression="False"/>
+                                                    </else>
+                                                </if>
+                                            </then>
+                                            <else>
+                                                <output expression="&quot;ยกเลิกการยืนยันคำสั่งซื้อ&quot;" newline="True"/>
+                                            </else>
+                                        </if>
+                                    </then>
+                                    <else>
+                                        <output expression="&quot;ไม่ได้เลือกจำนวนอาหาร&quot;" newline="True"/>
+                                    </else>
+                                </if>
+                                <assign variable="orderingNow" expression="False"/>
+                            </then>
+                            <else>
+                                <if expression="mainChoice == 3 or payingNow">
+                                    <then>
+                                        <!-- โมดูลที่ 3: เช็กบิลและชำระเงิน (Check Bill & Payment) -->
+                                        <output expression="&quot;--- Module: Check Bill &amp; Payment ---&quot;" newline="True"/>
+                                        <output expression="&quot;เลือกโต๊ะที่จะชำระเงิน (ระบุเลขโต๊ะ หรือ 'ทุกโต๊ะ'):&quot;" newline="True"/>
+                                        <input variable="tableNo"/>
+                                        
+                                        <output expression="&quot;คำนวณยอดชำระสุทธิ: ค่ามัดจำขั้นต่ำ vs ค่าอาหารจริง&quot;" newline="True"/>
+                                        <output expression="&quot;เลือกช่องทางชำระเงิน:&quot;" newline="True"/>
+                                        <output expression="&quot;1. เงินสด  2. เงินโอน  3. บัตรเครดิต&quot;" newline="True"/>
+                                        <input variable="payChoice"/>
+                                        
+                                        <if expression="payChoice == 1">
+                                            <then>
+                                                <assign variable="payMethodText" expression="&quot;เงินสด&quot;"/>
+                                            </then>
+                                            <else>
+                                                <if expression="payChoice == 2">
+                                                    <then>
+                                                        <assign variable="payMethodText" expression="&quot;เงินโอน&quot;"/>
+                                                    </then>
+                                                    <else>
+                                                        <assign variable="payMethodText" expression="&quot;บัตรเครดิต&quot;"/>
+                                                    </else>
+                                                </if>
+                                            </else>
+                                        </if>
+                                        
+                                        <output expression="&quot;ยืนยันการชำระเงินผ่านช่องทาง &quot; &amp; payMethodText &amp; &quot; (Y/N):&quot;" newline="True"/>
+                                        <input variable="confirm"/>
+                                        <if expression="confirm == &quot;Y&quot; or confirm == &quot;y&quot;">
+                                            <then>
+                                                <output expression="&quot;ชำระเงินเรียบร้อยแล้ว! อัปเดตสถานะ orders และ reservations เป็น 'จ่ายแล้ว'&quot;" newline="True"/>
+                                            </then>
+                                            <else>
+                                                <output expression="&quot;ยกเลิกการชำระเงิน&quot;" newline="True"/>
+                                            </else>
+                                        </if>
+                                        <assign variable="payingNow" expression="False"/>
+                                    </then>
+                                    <else>
+                                        <if expression="mainChoice == 4">
+                                            <then>
+                                                <!-- Logout -->
+                                                <output expression="&quot;ออกจากระบบเรียบร้อยแล้ว ขอบคุณที่ใช้บริการ PyRestaurant!&quot;" newline="True"/>
+                                                <assign variable="isRunning" expression="False"/>
+                                            </then>
+                                            <else>
+                                                <output expression="&quot;ตัวเลือกไม่ถูกต้อง กรุณาเลือกใหม่&quot;" newline="True"/>
+                                            </else>
+                                        </if>
+                                    </else>
+                                </if>
+                            </else>
+                        </if>
+                    </else>
+                </if>
+            </while>
         </body>
     </function>
 </flowgorithm>

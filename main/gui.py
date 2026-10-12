@@ -182,11 +182,11 @@ def register():
 
             multi_page(login_frame)
         elif regis == 1:
-            lblRgError.configure(text='Username Duplicated', text_color='#E74C3C')
+            lblRgError.configure(text='Username นี้ถูกใช้งานแล้ว', text_color='#E74C3C')
         elif regis == 2:
-            lblRgError.configure(text='Phone Number Duplicated', text_color='#E74C3C')
+            lblRgError.configure(text='เบอร์นี้ถูกใช้งานแล้ว', text_color='#E74C3C')
         elif regis == 3:
-            lblRgError.configure(text='Email Duplicated', text_color='#E74C3C')
+            lblRgError.configure(text='Email นี้ถูกใช้งานแล้ว', text_color='#E74C3C')
         else:
             lblRgError.configure(text='Register Failed', text_color='#E74C3C')
     except Exception as e:
@@ -378,8 +378,8 @@ def update_cart(cart:list[dict]):
             dialog.grab_release()
             dialog.destroy()
         
-        btnBk_yes = ctk.CTkButton(btn_frame,text='ใช่',fg_color="#27AE60",text_color="#000000",command=on_comfirm,width=100)
-        btnBk_no = ctk.CTkButton(btn_frame,text='ไม่',fg_color="#E74C3C",text_color="#000000",command=on_cancel,width=100)
+        btnBk_yes = ctk.CTkButton(btn_frame,text='ใช่',fg_color="#27AE60",hover_color="#1B6E3D",text_color="#000000",command=on_comfirm,width=100)
+        btnBk_no = ctk.CTkButton(btn_frame,text='ไม่',fg_color="#E74C3C",hover_color="#b73e30",text_color="#000000",command=on_cancel,width=100)
         
         btnBk_yes.pack(side="left", padx=10)
         btnBk_no.pack(side="right", padx=10)
@@ -598,8 +598,8 @@ def enter_booking():
             dialog_Order.destroy()
             multi_page(main_frame)  
 
-        btnOrder_yes = ctk.CTkButton(btn_frame_order,text='Yes',fg_color="#27AE60",text_color="#000000",command=on_order,width=100)
-        btnOrder_no = ctk.CTkButton(btn_frame_order,text='No',fg_color="#E74C3C",text_color="#000000",command=on_cancel_order,width=100)
+        btnOrder_yes = ctk.CTkButton(btn_frame_order,text='ใช่',fg_color="#27AE60",hover_color="#1B6E3D",text_color="#000000",command=on_order,width=100)
+        btnOrder_no = ctk.CTkButton(btn_frame_order,text='ไม่',fg_color="#E74C3C",hover_color="#b73e30",text_color="#000000",command=on_cancel_order,width=100)
 
         btnOrder_yes.pack(side="left", padx=10)
         btnOrder_no.pack(side="right", padx=10)
@@ -610,8 +610,8 @@ def enter_booking():
         dialog.grab_release()
         dialog.after(10,dialog.destroy)
 
-    btnBk_yes = ctk.CTkButton(btn_frame,text='Yes',fg_color="#27AE60",text_color="#000000",command=on_comfirm,width=100)
-    btnBk_no = ctk.CTkButton(btn_frame,text='No',fg_color="#E74C3C",text_color="#000000",command=on_cancel,width=100)
+    btnBk_yes = ctk.CTkButton(btn_frame,text='ใช่',fg_color="#27AE60",hover_color="#1B6E3D",text_color="#000000",command=on_comfirm,width=100)
+    btnBk_no = ctk.CTkButton(btn_frame,text='ไม่',fg_color="#E74C3C",hover_color="#b73e30",text_color="#000000",command=on_cancel,width=100)
 
     btnBk_yes.pack(side="left", padx=10)
     btnBk_no.pack(side="right", padx=10)
@@ -639,8 +639,8 @@ def enter_cart(cart:list[dict]):
         dialog.grab_release()
         dialog.destroy()
 
-    btnBk_yes = ctk.CTkButton(btn_frame,text='ใช่',fg_color="#27AE60",text_color="#000000",command=on_comfirm,width=100)
-    btnBk_no = ctk.CTkButton(btn_frame,text='ไม่',fg_color="#E74C3C",text_color="#000000",command=on_cancel,width=100)
+    btnBk_yes = ctk.CTkButton(btn_frame,text='ใช่',fg_color="#27AE60",hover_color="#1B6E3D",text_color="#000000",command=on_comfirm,width=100)
+    btnBk_no = ctk.CTkButton(btn_frame,text='ไม่',fg_color="#E74C3C",hover_color="#b73e30",text_color="#000000",command=on_cancel,width=100)
 
     btnBk_yes.pack(side="left", padx=10)
     btnBk_no.pack(side="right", padx=10)
@@ -689,8 +689,8 @@ def Paycon():
         dialog.grab_release()
         dialog.after(10, dialog.destroy)
 
-    btn_payYes = ctk.CTkButton(btn_frame, text='ใช่', fg_color="#27AE60", text_color="#ffffff", command=on_confirm, width=100)
-    btnpayNo = ctk.CTkButton(btn_frame, text='ไม่', fg_color="#E74C3C", text_color="#ffffff", command=on_cancel, width=100)
+    btn_payYes = ctk.CTkButton(btn_frame, text='ใช่', fg_color="#27AE60",hover_color="#1B6E3D", text_color="#ffffff", command=on_confirm, width=100)
+    btnpayNo = ctk.CTkButton(btn_frame, text='ไม่', fg_color="#E74C3C",hover_color="#b73e30", text_color="#ffffff", command=on_cancel, width=100)
 
     btn_payYes.pack(side='left', padx=10)
     btnpayNo.pack(side='left', padx=10)
@@ -710,10 +710,10 @@ Check_Bill = ctk.CTkFrame(app,fg_color='transparent')
 # ============================================ login frame =================================================
 lable1 = ctk.CTkLabel(login_frame,
     text="Welcome To PyRestaurant",
-    text_color="#00FF3C"
+    text_color="#3BB758"
 )
 lable2 = ctk.CTkLabel(login_frame,
-    text="Username "
+    text="Username"
 
 )
 lable3 = ctk.CTkLabel(login_frame,
@@ -730,11 +730,12 @@ button = ctk.CTkButton(login_frame,
     text='ล็อกอิน',
                        text_color="#fcfdfb",
                        fg_color="#27AE60",
-                       hover_color="#114828",
+                       hover_color="#1B6E3D",
                        command= check_pass
                        )
 buttonregis = ctk.CTkButton(login_frame
                             ,text="สมัครสมาชิกเลย",
+                            text_color="#42AD1B",
                             fg_color='transparent',
                             hover=False,
                             command=lambda: multi_page(register_frame)
@@ -744,7 +745,7 @@ buttonback = ctk.CTkButton(
     login_frame, text='ปิดแอพ',
     text_color="#f4f1f1",
     fg_color='#E74C3C',
-    hover_color="#752A21",
+    hover_color="#b73e30",
     command= app.destroy
 )
 buttonsp = ctk.CTkButton(login_frame,text='😑',fg_color='transparent',hover=False,command=show_password)
@@ -803,8 +804,8 @@ entryrgEmail = ctk.CTkEntry(register_frame,placeholder_text="ใส่ E-mail �
 
 buttonRgsp1 = ctk.CTkButton(register_frame,text='😑',fg_color='transparent',hover=False,command=show_passwordRg1)
 buttonRgsp2 = ctk.CTkButton(register_frame,text='😑',fg_color='transparent',hover=False,command=show_passwordRg2)
-buttonRg = ctk.CTkButton(register_frame,text='Enter',command=register)
-buttonRgback =ctk.CTkButton(register_frame,text="Back",command=lambda: multi_page(login_frame))
+buttonRg = ctk.CTkButton(register_frame,text='ยืนยัน',command=register)
+buttonRgback =ctk.CTkButton(register_frame,text="กลับ",command=lambda: multi_page(login_frame))
 
 lblrg1.pack()
 lblRgError.pack()
@@ -852,11 +853,11 @@ menu_options = ["Booking","Order","Check Bill"]
 
 lblmain1 = ctk.CTkLabel(main_frame,text=f'Welcome to PyRestaurent')
 lblheadmain1 = ctk.CTkLabel(header_frame,text = name)
-buttonlogout = ctk.CTkButton(header_frame,text='logout',
-                             fg_color = "#f74242",
-                            hover_color='#cc0000',
+buttonlogout = ctk.CTkButton(header_frame,text='ออกจากระบบ',
+                             fg_color = "#E74C3C",
+                            hover_color="#b73e30",
                             command=logout,
-                            width= 70,
+                            width= 140,
                             height= 14 )
 
 #options_main = ctk.CTkOptionMenu(main_frame,values=menu_options,command=transection_main)
@@ -881,10 +882,10 @@ menu_timeOption = ["16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:0
 
 frame_available_table = ctk.CTkFrame(Booking)
 frame_filter_table = ctk.CTkFrame(Booking,fg_color='transparent')
-colum_no = ctk.CTkLabel(frame_available_table,text='NO.')
-colum_capacity = ctk.CTkLabel(frame_available_table,text='Capacity')
-colum_cost = ctk.CTkLabel(frame_available_table,text='Cost')
-colum_status = ctk.CTkLabel(frame_available_table,text='Status')
+colum_no = ctk.CTkLabel(frame_available_table,text='เลขโต๊ะ')
+colum_capacity = ctk.CTkLabel(frame_available_table,text='โต๊ะ/คน')
+colum_cost = ctk.CTkLabel(frame_available_table,text='ราคา')
+colum_status = ctk.CTkLabel(frame_available_table,text='สถานะ')
 
 def load_table_data(booking_date: str = day_now(), time_slot: str = "16:00 - 17:00"):
 
@@ -913,7 +914,7 @@ def load_table_data(booking_date: str = day_now(), time_slot: str = "16:00 - 17:
 
 
 lblbk1 = ctk.CTkLabel(Booking,text='Booking Table')
-lblbk2 = ctk.CTkLabel(Booking,text='Table Available')
+lblbk2 = ctk.CTkLabel(Booking,text='โต๊ะว่าง')
 entryBkTable = ctk.CTkEntry(Booking,placeholder_text='กรอกเลขโต๊ะ เช่น A1')
 
 entryBkdate = DateEntry(frame_filter_table,date_pattern= "yyyy-mm-dd",
@@ -933,8 +934,8 @@ enterBkfilter = ctk.CTkButton(frame_filter_table,text='Filter',
                               command=lambda: load_table_data(entryBkdate.get(),f"{option_time1.get()} - {option_time2.get()}"))
 
 
-buttonBkOk = ctk.CTkButton(Booking,text='Enter',fg_color="#005EFF",hover_color="#0041b2",command=enter_booking)
-btbackMain = ctk.CTkButton(Booking,text='Back',fg_color = "#E74C3C",hover_color="#a80000",command=lambda: multi_page(main_frame))
+buttonBkOk = ctk.CTkButton(Booking,text='ยืนยัน',fg_color="#005EFF",hover_color="#0041b2",command=enter_booking)
+btbackMain = ctk.CTkButton(Booking,text='กลับ',fg_color = "#E74C3C",hover_color="#b73e30",command=lambda: multi_page(main_frame))
 
 lblbk1.pack()
 lblbk2.pack()
@@ -966,7 +967,7 @@ screen_count = {}  # เก็บจำนวนหน้าจอของแ�
 qty_labels = {}  # เก็บ label ของจำนวนรายการอาหารแต่ละเมนู
 
 
-frame_order = ctk.CTkScrollableFrame(Order,label_text = "menu List")
+frame_order = ctk.CTkScrollableFrame(Order,label_text = "เมนู")
 headerOrder_frame = ctk.CTkFrame(Order)
 headerOrder_frame1 = ctk.CTkFrame(frame_order)
 headerOrder_frame1.pack(fill = 'x' ,pady=5)
@@ -1001,9 +1002,9 @@ option_table = ctk.CTkOptionMenu(headerOrder_frame1,values=table_user,fg_color='
 
 lblod1 = ctk.CTkLabel(headerOrder_frame,text='Order')
 btn_cart = ctk.CTkButton(headerOrder_frame,text="🛒",fg_color='transparent',hover_color="#8A8888",width=70,command= lambda: multi_page(Cart))
-btbackMainOd = ctk.CTkButton(headerOrder_frame,text='Back',fg_color = "transparent",hover_color="#8a8888",command=lambda: multi_page(main_frame))
+btbackMainOd = ctk.CTkButton(headerOrder_frame,text='กลับ',fg_color = "transparent",hover_color="#8a8888",command=lambda: multi_page(main_frame))
 
-btnconfirm_order = ctk.CTkButton(frame_order,text='Confirm Order',fg_color="#005EFF",hover_color="#0041b2",command=confirm_to_cart)
+btnconfirm_order = ctk.CTkButton(frame_order,text='ยืนยันออเดอร์',fg_color="#005EFF",hover_color="#0041b2",command=confirm_to_cart)
 
 option_table.pack(side = 'bottom',fill = 'x',padx = 10)
 
@@ -1025,12 +1026,12 @@ screen_count2 = {}  # เก็บจำนวนหน้าจอของแ�
 
 headercart_frame = ctk.CTkFrame(Cart)    
 lblCart1 = ctk.CTkLabel(headercart_frame,text='Order')
-btbackMainCart = ctk.CTkButton(headercart_frame,text='Back',fg_color = "transparent",hover_color="#8a8888",command=lambda: multi_page(Order))
+btbackMainCart = ctk.CTkButton(headercart_frame,text='กลับ',fg_color = "transparent",hover_color="#8a8888",command=lambda: multi_page(Order))
 
-btn_cart_confirm = ctk.CTkButton(Cart,text='Confirm',fg_color='#005eff',hover_color='#0041b2',command=lambda: enter_cart(cart_items))
+btn_cart_confirm = ctk.CTkButton(Cart,text='ยืนยัน',fg_color='#005eff',hover_color='#0041b2',command=lambda: enter_cart(cart_items))
 
 cart_frame = ctk.CTkScrollableFrame(Cart,label_text="My Cart")
-btn_clear_cart = ctk.CTkButton(Cart,text='Clear',fg_color='#E74C3C',hover_color="#aa0000",command=clear_cart)
+btn_clear_cart = ctk.CTkButton(Cart,text='เคลียร์',fg_color='#E74C3C',hover_color="#b73e30",command=clear_cart)
 lblCart_total = ctk.CTkLabel(Cart,text='0',bg_color="#918F8F",text_color="#0058A5")
 
 def reload_cart():
@@ -1123,13 +1124,13 @@ haederCheckbill_freame = ctk.CTkFrame(Check_Bill)
 radioframe = ctk.CTkFrame(Check_Bill,fg_color='transparent')
 haederCheckbill_freame.pack(fill = 'x')
 lblCb1 = ctk.CTkLabel(haederCheckbill_freame,text='Check Bill & Payment')
-btbackMainCb = ctk.CTkButton(haederCheckbill_freame,text="Back",
+btbackMainCb = ctk.CTkButton(haederCheckbill_freame,text="กลับ",
                              width= 200 ,
                              fg_color = "transparent",hover_color="#8a8888",
                              command=lambda: multi_page(main_frame))
 
 
-Cblist = ctk.CTkScrollableFrame(Check_Bill,label_text='All order')
+Cblist = ctk.CTkScrollableFrame(Check_Bill,label_text='ออเดอร์ทั้งหมด')
 lblCbcount = ctk.CTkLabel(Check_Bill,text="ยอดรวมทั้งหมด: 0.00 บาท", font=("Arial", 16, "bold"), text_color="#005EFF")
 
 
@@ -1137,7 +1138,7 @@ varrdopay.set('cash')
 rdopay1 = ctk.CTkRadioButton(radioframe,text='เงินสด',value='cash',variable=varrdopay,command=RadioPay)
 rdopay2 = ctk.CTkRadioButton(radioframe,text='เงินโอน',value='transfer',variable=varrdopay,command=RadioPay)
 rdopay3 = ctk.CTkRadioButton(radioframe,text='บัตรเครดิต',value='card',variable=varrdopay,command=RadioPay)
-btnCheckbill = ctk.CTkButton(Check_Bill,text="Confirm",fg_color='#005eff',hover_color='#0041b2',command=Paycon)
+btnCheckbill = ctk.CTkButton(Check_Bill,text="ยืนยัน",fg_color='#005eff',hover_color='#0041b2',command=Paycon)
 
 
 Cblist.pack(fill = 'both',expand = True,pady = 10 ,padx = 10)
