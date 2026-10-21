@@ -334,35 +334,81 @@ def group_order(username:str, target_table: str = "ทุกโต๊ะ")-> lis
 
     return order
 
-def add_menu_item(name: str, description: str, price: float) -> bool:
-    """
-    ฟังก์ชันสำหรับเพิ่มเมนูอาหารใหม่
-    Return: bool (True หากเพิ่มเมนูสำเร็จ, False หากล้มเหลว)
-    """
+def delete_menu_item(item_id: str) -> bool:
+    """ลบรายการอาหารออกจากตาราง menu_food ตาม id"""
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM menu_food WHERE id = ?", (item_id,))
+        conn.commit()
+        return True
+    except sqlite3.Error as e:
+        print(f"[SQL Error delete_menu_item]: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+def delete_drink_item(item_id: str) -> bool:
+    """ลบรายการเครื่องดื่มออกจากตาราง menu_drink ตาม id"""
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM menu_drink WHERE id = ?", (item_id,))
+        conn.commit()
+        return True
+    except sqlite3.Error as e:
+        print(f"[SQL Error delete_drink_item]: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+def add_menu_item(item_id: str, name: str, price: float, description: str = "") -> bool:
+    """เพิ่มรายการอาหารใหม่ลงในตาราง menu_food"""
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO menu_food (id, food, price, description) VALUES (?, ?, ?, ?)",
+            (item_id, name, price, description)
+        )
+        conn.commit()
+        return True
+    except sqlite3.Error as e:
+        print(f"[SQL Error add_menu_item]: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+def add_drink_item(item_id: str, name: str, price: float, description: str = "") -> bool:
+    """เพิ่มรายการเครื่องดื่มใหม่ลงในตาราง menu_drink"""
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO menu_drink (id, drink, price, description) VALUES (?, ?, ?, ?)",
+            (item_id, name, price, description)
+        )
+        conn.commit()
+        return True
+    except sqlite3.Error as e:
+        print(f"[SQL Error add_drink_item]: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+def get_all_menu_ids(is_food: bool) -> list[str]:
+    """ดึงรายการ ID ทั้งหมดจากตาราง menu_food หรือ menu_drink"""
+    table = "menu_food" if is_food else "menu_drink"
     conn = connect_db()
     cursor = conn.cursor()
-    
-    cursor.execute("INSERT INTO menu_food (name, price,description) VALUES (?, ?, ?)", (name, price, description))
-
-    conn.commit()
+    cursor.execute(f"SELECT id FROM {table}")
+    rows = cursor.fetchall()
     conn.close()
-    
-    return True
-
-def add_drink_item(name: str, description: str, price: float) -> bool:
-    """
-    ฟังก์ชันสำหรับเพิ่มเมนูเครื่องดื่มใหม่
-    Return: bool (True หากเพิ่มเมนูสำเร็จ, False หากล้มเหลว)
-    """
-    conn = connect_db()
-    cursor = conn.cursor()
-    
-    cursor.execute("INSERT INTO menu_drink (name, price,description) VALUES (?, ?, ?)", (name, price, description))
-
-    conn.commit()
-    conn.close()
-    
-    return True
+    return [r[0] for r in rows if r[0]]
 
 def add_table(table_number: str ,capacity : int , status : str = "ว่าง") -> bool:
     """

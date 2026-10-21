@@ -979,7 +979,7 @@ else:
 
         row_frame = ctk.CTkFrame(frame_order, fg_color='transparent')
 
-        lbl_item_name = ctk.CTkLabel(row_frame, text=f"{item[1]} ({item[2]})", width=200, anchor='w')
+        lbl_item_name = ctk.CTkLabel(row_frame, text=f"{item[1]} ({item[2]} ฿)", width=200, anchor='w')
         lbl_count = ctk.CTkLabel(row_frame, text='0', width=30)
 
         btn_minus = ctk.CTkButton(row_frame, text='-', width=30, command=lambda id=item_id: change_qty(id, -1))
@@ -992,6 +992,12 @@ else:
         btn_minus.pack(side='left', padx=5)
         lbl_count.pack(side='left', padx=5)
         btn_plus.pack(side='left', padx=5)
+
+        if item[3] is not None and str(item[3]).strip() != '':
+            description_frame = ctk.CTkFrame(frame_order,fg_color='transparent')
+            lbl_desc = ctk.CTkLabel(description_frame,text=f'คำอธิบาย {item[1]} | {item[3].strip()}',width=200,anchor='w')
+            description_frame.pack(fill='x', pady=5, padx=10)
+            lbl_desc.pack(side='left',expand=True)
 
 
 option_table = ctk.CTkOptionMenu(headerOrder_frame1,values=table_user,fg_color='#8a8888',button_color="#005EFF",button_hover_color="#0041b2",)
