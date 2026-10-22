@@ -31,8 +31,8 @@ def format_menu_info_text(item_id: str, name: str, price: float, desc: str = "")
     [Pure Function] แปลงข้อมูลเมนูเป็น String สำหรับแสดงผลบน UI
     """
     text = f"[{item_id}]  {name}\nราคา: {price:.2f} บาท"
-    if desc:
-        text += f" ({desc})"
+    if desc and str(desc).strip():
+        text += f" ({desc.strip()})"
     return text
 
 
@@ -119,18 +119,134 @@ def reload_menu_list(container_frame: ctk.CTkScrollableFrame, category: str, par
         lbl_info = ctk.CTkLabel(card, text=info_text, anchor="w", font=("Arial", 13), justify="left")
         lbl_info.pack(side="left", padx=12, pady=10, expand=True, fill="x")
 
+        # Frame สำหรับกลุ่มปุ่มด้านขวา (แก้ไข + ลบ)
+        btn_action_frame = ctk.CTkFrame(card, fg_color="transparent")
+        btn_action_frame.pack(side="right", padx=10, pady=10)
+
+        # ปุ่ม ✏️ แก้ไข
+        btn_edit = ctk.CTkButton(
+            btn_action_frame,
+            text="✏️ แก้ไข",
+            fg_color="#FFD43B",
+            text_color="#202124",
+            hover_color="#F2C52E",
+            width=65,
+            height=32,
+            font=("Arial", 12, "bold"),
+            command=lambda cat=category, itm=item: open_edit_dialog(
+                parent_app, cat, itm, lambda: reload_menu_list(container_frame, cat, parent_app)
+            )
+        )
+        btn_edit.pack(side="left", padx=3)
+
+        # ปุ่ม 🗑️ ลบ
         btn_delete = ctk.CTkButton(
-            card,
+            btn_action_frame,
             text="🗑️ ลบ",
             fg_color="#D64545",
             hover_color="#B03A3A",
-            width=70,
+            width=60,
             height=32,
+            font=("Arial", 12, "bold"),
             command=lambda cat=category, i_id=item_id, i_name=name: confirm_delete_dialog(
                 parent_app, cat, i_id, i_name, lambda: reload_menu_list(container_frame, cat, parent_app)
             )
         )
-        btn_delete.pack(side="right", padx=10, pady=10)
+        btn_delete.pack(side="left", padx=3)
+
+
+def open_edit_dialog(parent_app, category: str, item: tuple, on_success_callback):
+    """Pop-up สำหรับแก้ไขข้อมูลเมนูที่เลือก"""
+    item_id = item[0]
+    current_name = item[1]
+    current_price = item[2]
+    current_desc = item[3] if len(item) > 3 and item[3] else ""
+
+    dialog = ctk.CTkToplevel(parent_app)
+    dialog.title(f"✏️ แก้ไขเมนู [{item_id}]")
+    dialog.geometry("380x430")
+    dialog.grab_set()
+    dialog.resizable(False, False)
+
+    lbl_title = ctk.CTkLabel(
+        dialog,
+        text=f"แก้ไขเมนูรหัส: {item_id}",
+        font=("Arial", 15, "bold"),
+        text_color="#00A86B"
+    )
+    lbl_title.pack(pady=(15, 10))
+
+    form_frame = ctk.CTkFrame(dialog, fg_color="transparent")
+    form_frame.pack(padx=20, pady=5, fill="both", expand=True)
+
+    # ชื่อเมนู
+    ctk.CTkLabel(form_frame, text="ชื่อเมนู:", font=("Arial", 12, "bold")).pack(anchor="w", pady=(5, 2))
+    entry_name = ctk.CTkEntry(form_frame, placeholder_text="ชื่ออาหาร/เครื่องดื่ม")
+    entry_name.insert(0, current_name)
+    entry_name.pack(fill="x", pady=(0, 10))
+
+    # ราคา
+    ctk.CTkLabel(form_frame, text="ราคา (บาท):", font=("Arial", 12, "bold")).pack(anchor="w", pady=(5, 2))
+    entry_price = ctk.CTkEntry(form_frame, placeholder_text="เช่น 50")
+    entry_price.insert(0, str(current_price))
+    entry_price.pack(fill="x", pady=(0, 10))
+
+    # คำอธิบาย
+    ctk.CTkLabel(form_frame, text="คำอธิบาย (Optional):", font=("Arial", 12, "bold")).pack(anchor="w", pady=(5, 2))
+    entry_desc = ctk.CTkEntry(form_frame, placeholder_text="คำอธิบายเมนู")
+    entry_desc.insert(0, current_desc)
+    entry_desc.pack(fill="x", pady=(0, 15))
+
+    # ปุ่มการทำงาน
+    btn_frame = ctk.CTkFrame(form_frame, fg_color="transparent")
+    btn_frame.pack(fill="x", pady=10)
+
+    def on_save():
+        name = entry_name.get()
+        price_str = entry_price.get()
+        desc = entry_desc.get().strip()
+
+        # 1. ตรวจสอบข้อมูลผ่าน Pure Function
+        is_valid, err_msg, price = validate_menu_input(name, price_str)
+        if not is_valid:
+            show_alert(dialog, "แจ้งเตือน", err_msg, "#D64545")
+            return
+
+        # 2. บันทึกการอัปเดตลง DB
+        is_food = category == "food"
+        success = data.update_menu_item(item_id, name.strip(), price, desc) if is_food else data.update_drink_item(item_id, name.strip(), price, desc)
+
+        if success:
+            dialog.grab_release()
+            dialog.destroy()
+            on_success_callback()
+            show_alert(parent_app, "สำเร็จ", f"แก้ไขเมนู [{item_id}] เรียบร้อยแล้ว", "#00A86B")
+        else:
+            show_alert(dialog, "ข้อผิดพลาด", "ไม่สามารถบันทึกการแก้ไขได้", "#D64545")
+
+    btn_save = ctk.CTkButton(
+        btn_frame,
+        text="💾 บันทึกแก้ไข",
+        fg_color="#00A86B",
+        hover_color="#008F5B",
+        font=("Arial", 13, "bold"),
+        width=150,
+        height=36,
+        command=on_save
+    )
+    btn_save.pack(side="left", padx=5)
+
+    btn_cancel = ctk.CTkButton(
+        btn_frame,
+        text="ยกเลิก",
+        fg_color="#555555",
+        hover_color="#333333",
+        font=("Arial", 13),
+        width=100,
+        height=36,
+        command=dialog.destroy
+    )
+    btn_cancel.pack(side="right", padx=5)
 
 
 def confirm_delete_dialog(parent_app, category: str, item_id: str, name: str, on_success_callback):
