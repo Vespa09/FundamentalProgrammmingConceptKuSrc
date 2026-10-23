@@ -425,6 +425,43 @@ def add_table(table_number: str ,capacity : int , status : str = "ว่าง")
     
     return True
 
+def update_menu_item(item_id: str, name: str, price: float, description: str = "") -> bool:
+    """อัปเดตข้อมูลรายการอาหารในตาราง menu_food"""
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE menu_food SET food = ?, price = ?, description = ? WHERE id = ?",
+            (name, price, description, item_id)
+        )
+        conn.commit()
+        return True
+    except sqlite3.Error as e:
+        print(f"[SQL Error update_menu_item]: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+def update_drink_item(item_id: str, name: str, price: float, description: str = "") -> bool:
+    """อัปเดตข้อมูลรายการเครื่องดื่มในตาราง menu_drink"""
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE menu_drink SET drink = ?, price = ?, description = ? WHERE id = ?",
+            (name, price, description, item_id)
+        )
+        conn.commit()
+        return True
+    except sqlite3.Error as e:
+        print(f"[SQL Error update_drink_item]: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
 def get_table(username: str) -> list[dict] | None:
     """
     ฟังก์ชันสำหรับดึงข้อมูลโต๊ะที่กำหนด
