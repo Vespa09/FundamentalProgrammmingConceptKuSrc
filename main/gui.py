@@ -977,27 +977,44 @@ else:
         item_id = item[0]
         screen_count[item_id] = 0
 
-        row_frame = ctk.CTkFrame(frame_order, fg_color='transparent')
+        # 1. วาดหัวข้อหมวดหมู่ลงบน frame_order โดยตรง
+        if item_id.lower() == 'f1':
+            lbl_category = ctk.CTkLabel(frame_order, text='อาหาร', font=("Arial", 20, "bold"), anchor='w')
+            lbl_category.pack(fill="x", anchor='w', pady=(10, 2), padx=10)
+            divider = ctk.CTkFrame(frame_order, height=2, fg_color="#444444")
+            divider.pack(fill='x', padx=10, pady=(0, 6))
 
-        lbl_item_name = ctk.CTkLabel(row_frame, text=f"{item[1]} ({item[2]} ฿)", width=200, anchor='w')
-        lbl_count = ctk.CTkLabel(row_frame, text='0', width=30)
+        elif item_id.lower() == 'd1':
+            lbl_category = ctk.CTkLabel(frame_order, text='เครื่องดื่ม', font=("Arial", 20, "bold"), anchor='w')
+            lbl_category.pack(fill="x", anchor='w', pady=(16, 2), padx=10)
+            divider = ctk.CTkFrame(frame_order, height=2, fg_color="#444444")
+            divider.pack(fill='x', padx=10, pady=(0, 6))
 
-        btn_minus = ctk.CTkButton(row_frame, text='-', width=30, command=lambda id=item_id: change_qty(id, -1))
-        btn_plus = ctk.CTkButton(row_frame, text='+', width=30, command=lambda id=item_id: change_qty(id, 1))
+        row_frame = ctk.CTkFrame(frame_order, fg_color='#232323',border_color="#383838",border_width=1,corner_radius=10)
+
+
+        item_frame = ctk.CTkFrame(row_frame,fg_color='transparent')
+
+        lbl_item_name = ctk.CTkLabel(item_frame, text=f"{item[1]} ({item[2]} ฿)", width=200, anchor='w',text_color='#ffffff')
+        lbl_item_name.pack(anchor='w')
+        if item[3] is not None and str(item[3]).strip() != '':
+            lbl_desc = ctk.CTkLabel(item_frame,text=f'{item[3].strip()}',width=200,anchor='w',text_color='#9e9e9e',wraplength=240)
+            lbl_desc.pack(anchor='w',pady = 5)
+
+        btn_frame = ctk.CTkFrame(row_frame,fg_color='transparent')
+        btn_minus = ctk.CTkButton(btn_frame, text='-', width=30, command=lambda id=item_id: change_qty(id, -1))
+        lbl_count = ctk.CTkLabel(btn_frame, text='0', width=30)
+        btn_plus = ctk.CTkButton(btn_frame, text='+', width=30, command=lambda id=item_id: change_qty(id, 1))
 
         qty_labels[item_id] = lbl_count
 
         row_frame.pack(fill='x', pady=5, padx=10)
-        lbl_item_name.pack(side='left', padx=5,expand=True)
+        item_frame.pack(fill = 'x',side='left',pady = 5, padx = 10)
+        btn_frame.pack(side='right',pady=5,padx=10)
         btn_minus.pack(side='left', padx=5)
         lbl_count.pack(side='left', padx=5)
         btn_plus.pack(side='left', padx=5)
 
-        if item[3] is not None and str(item[3]).strip() != '':
-            description_frame = ctk.CTkFrame(frame_order,fg_color='transparent')
-            lbl_desc = ctk.CTkLabel(description_frame,text=f'คำอธิบาย {item[1]} | {item[3].strip()}',width=200,anchor='w')
-            description_frame.pack(fill='x', pady=5, padx=10)
-            lbl_desc.pack(side='left',expand=True)
 
 
 option_table = ctk.CTkOptionMenu(headerOrder_frame1,values=table_user,fg_color='#8a8888',button_color="#005EFF",button_hover_color="#0041b2",)
@@ -1007,7 +1024,7 @@ lblod1 = ctk.CTkLabel(headerOrder_frame,text='Order')
 btn_cart = ctk.CTkButton(headerOrder_frame,text="🛒",fg_color='transparent',hover_color="#8A8888",width=70,command= lambda: multi_page(Cart))
 btbackMainOd = ctk.CTkButton(headerOrder_frame,text='กลับ',fg_color = "transparent",hover_color="#8a8888",command=lambda: multi_page(main_frame))
 
-btnconfirm_order = ctk.CTkButton(frame_order,text='ยืนยันออเดอร์',fg_color="#005EFF",hover_color="#0041b2",command=confirm_to_cart)
+btnconfirm_order = ctk.CTkButton(Order,text='ยืนยันออเดอร์',fg_color="#005EFF",hover_color="#0041b2",command=confirm_to_cart)
 
 option_table.pack(side = 'bottom',fill = 'x',padx = 10)
 
