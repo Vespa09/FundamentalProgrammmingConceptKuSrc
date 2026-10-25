@@ -770,7 +770,7 @@ if __name__ == "__main__":
 
     conn = connect_db()
     cursor= conn.cursor()
-    cursor.execute("DELETE FROM table_name;")
+    cursor.execute("DELETE FROM reservations;")
     conn.close()
 
 
