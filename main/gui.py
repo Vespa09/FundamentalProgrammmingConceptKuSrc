@@ -521,12 +521,18 @@ def enter_booking():
     date_user = entryBkdate.get()          # เช่น "2026-10-04"
     time_start = option_time1.get()        # เช่น "16:00"
     time_end = option_time2.get()          # เช่น "17:00"
+    tables_AvB = data.get_available_tables(entryBkdate.get(), f"{option_time1.get()} - {option_time2.get()}")
 
 
     if not entry_table:
         show_msg_error("กรุณากรอกเลขโต๊ะ")
         return
-    
+
+    table = [i["table_no"] for i in tables_AvB]
+
+    if entry_table not in table :
+        show_msg_error("กรุณากรอกเลขโต๊ะที่ถูกต้อง")
+        return
 
 
     # 1. ตรวจสอบการเลือกเวลาเริ่มต้นและจบ
@@ -884,6 +890,24 @@ colum_capacity = ctk.CTkLabel(frame_available_table,text='โต๊ะ/คน')
 colum_cost = ctk.CTkLabel(frame_available_table,text='ราคา')
 colum_status = ctk.CTkLabel(frame_available_table,text='สถานะ')
 
+entryBkdate = DateEntry(frame_filter_table,date_pattern= "yyyy-mm-dd",
+                        width = 25 ,height = 100,font=("Helvetica", 20),
+                        background = 'darkblue',foreground = 'white',borderwidth = 2)
+option_time1 = ctk.CTkOptionMenu(frame_filter_table,values= menu_timeOption,
+                                 width=50,height=15,
+                                 fg_color='#000000',button_color="#005EFF",button_hover_color="#0041b2",
+                                 command=auto_set_end_time)
+option_time2 = ctk.CTkOptionMenu(frame_filter_table,values= menu_timeOption,
+                                 width=50,height=15,
+                                 fg_color='#000000',button_color="#005EFF",button_hover_color="#0041b2"
+                                 )
+enterBkfilter = ctk.CTkButton(frame_filter_table,text='Filter',
+                              width=100,height=15,
+                              fg_color="#005EFF",hover_color="#0041b2",
+                              command=lambda: load_table_data(entryBkdate.get(),f"{option_time1.get()} - {option_time2.get()}"))
+
+
+
 def load_table_data(booking_date: str = day_now(), time_slot: str = "16:00 - 17:00"):
 
     auto_set_end_time(option_time1.get())
@@ -892,7 +916,7 @@ def load_table_data(booking_date: str = day_now(), time_slot: str = "16:00 - 17:
         if widget not in headers :
             widget.destroy()
 
-    tables_AvB = data.get_available_tables(booking_date, time_slot)
+    tables_AvB = data.get_available_tables(entryBkdate.get(), f"{option_time1.get()} - {option_time2.get()}")
 
     if tables_AvB:
         for row_idx, table in enumerate(tables_AvB, start=1):
@@ -913,22 +937,6 @@ def load_table_data(booking_date: str = day_now(), time_slot: str = "16:00 - 17:
 lblbk1 = ctk.CTkLabel(Booking,text='Booking Table')
 lblbk2 = ctk.CTkLabel(Booking,text='โต๊ะว่าง')
 entryBkTable = ctk.CTkEntry(Booking,placeholder_text='กรอกเลขโต๊ะ เช่น A1')
-
-entryBkdate = DateEntry(frame_filter_table,date_pattern= "yyyy-mm-dd",
-                        width = 25 ,height = 100,font=("Helvetica", 20),
-                        background = 'darkblue',foreground = 'white',borderwidth = 2)
-option_time1 = ctk.CTkOptionMenu(frame_filter_table,values= menu_timeOption,
-                                 width=50,height=15,
-                                 fg_color='#000000',button_color="#005EFF",button_hover_color="#0041b2",
-                                 command=auto_set_end_time)
-option_time2 = ctk.CTkOptionMenu(frame_filter_table,values= menu_timeOption,
-                                 width=50,height=15,
-                                 fg_color='#000000',button_color="#005EFF",button_hover_color="#0041b2"
-                                 )
-enterBkfilter = ctk.CTkButton(frame_filter_table,text='Filter',
-                              width=100,height=15,
-                              fg_color="#005EFF",hover_color="#0041b2",
-                              command=lambda: load_table_data(entryBkdate.get(),f"{option_time1.get()} - {option_time2.get()}"))
 
 
 buttonBkOk = ctk.CTkButton(Booking,text='ยืนยัน',fg_color="#005EFF",hover_color="#0041b2",command=enter_booking)
