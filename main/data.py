@@ -768,5 +768,9 @@ if __name__ == "__main__":
     update_table_status("B2",'ว่าง',None)
     update_table_status("B4",'ว่าง',None)'''
 
+    conn = connect_db()
+    cursor= conn.cursor()
+    cursor.execute("DELETE FROM table_name;")
+    conn.close()
 
 
